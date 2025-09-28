@@ -10,6 +10,7 @@ import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { PageTransition } from '@/components/ui/page-transition';
 import AddTransactionContainer from '@/components/auth/add-transaction-container';
+import PlexusBackground from '@/components/PlexusBackground';
 
 
 export default function DashboardPage() {
@@ -55,7 +56,8 @@ export default function DashboardPage() {
 
   return (
     <PageTransition>
-      <div className="py-8 px-4 md:px-8">
+      <div className="min-h-screen aurora-background py-8 px-4 md:px-8">
+        <PlexusBackground />
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4">

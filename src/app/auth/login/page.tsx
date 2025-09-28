@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/components/auth/auth-provider';
 import Link from 'next/link';
+import PlexusBackground from '@/components/PlexusBackground';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -52,7 +53,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen aurora-background p-4">
+      <PlexusBackground />
+      <div className="flex items-center justify-center min-h-screen">
       <Card className="w-full max-w-md bg-card text-foreground mx-4">
         <CardHeader className="space-y-1 px-4 md:px-6">
           <CardTitle className="text-xl md:text-2xl text-center">Welcome back</CardTitle>
@@ -121,6 +124,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

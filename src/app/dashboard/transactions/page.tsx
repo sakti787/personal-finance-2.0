@@ -29,6 +29,7 @@ import { useDataStore } from '@/lib/store/data-store';
 import type { Transaction } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import PlexusBackground from '@/components/PlexusBackground';
 
 export default function TransactionsPage() {
   const {
@@ -73,7 +74,8 @@ export default function TransactionsPage() {
 
   return (
     <PageTransition>
-      <div className="p-4 md:p-6">
+      <div className="min-h-screen aurora-background p-4 md:p-6">
+        <PlexusBackground />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Transactions</h1>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">

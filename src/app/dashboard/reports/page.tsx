@@ -20,6 +20,7 @@ import {
   Cell,
   PieLabelRenderProps
 } from 'recharts';
+import PlexusBackground from '@/components/PlexusBackground';
 
 export default function ReportsPage() {
   const { 
@@ -119,7 +120,8 @@ export default function ReportsPage() {
 
   return (
     <PageTransition>
-      <div className="p-4 md:p-6">
+      <div className="min-h-screen aurora-background p-4 md:p-6">
+        <PlexusBackground />
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-6">Financial Reports</h1>
         
         {/* Summary Cards */}

@@ -28,6 +28,7 @@ import {
 import { PageTransition } from '@/components/ui/page-transition';
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { Trash2, Plus } from 'lucide-react';
+import PlexusBackground from '@/components/PlexusBackground';
 
 export default function CategoriesPage() {
   const { 
@@ -102,7 +103,8 @@ export default function CategoriesPage() {
 
   return (
     <PageTransition>
-      <div className="p-4 md:p-6">
+      <div className="min-h-screen aurora-background p-4 md:p-6">
+        <PlexusBackground />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Categories</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
