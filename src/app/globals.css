@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --font-sans: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  --radius: 0.625rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* Oxford Blue - Main background */
+  --background: #14213d;
+  /* Platinum - Main text */
+  --foreground: #e5e5e5;
+  /* Black - Card/Container background */
+  --card: #000000;
+  --border: #fca311;
+  /* Orange (Web) - Primary/Accent */
+  --primary: #fca311;
+  --primary-foreground: #ffffff;
+  /* White - Subtle text */
+  --muted: #ffffff;
+  --muted-foreground: #ffffff;
+  --radius: 0.625rem;
+}
+
+/* Force dark mode - No light mode option */
+.dark {
+  --background: #14213d;
+  --foreground: #e5e5e5;
+  --card: #000000;
+  --border: #fca311;
+  --primary: #fca311;
+  --primary-foreground: #ffffff;
+  --muted: #ffffff;
+  --muted-foreground: #ffffff;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom animations */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
