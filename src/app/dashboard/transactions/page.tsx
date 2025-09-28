@@ -16,6 +16,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useDataStore } from '@/lib/store/data-store';
@@ -38,44 +45,102 @@ export default function TransactionsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
+  const [filterMonth, setFilterMonth] = useState<number>(new Date().getMonth() + 1);
+  const [filterYear, setFilterYear] = useState<number>(new Date().getFullYear());
 
   useEffect(() => {
     fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Generate month options (1-12)
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    value: i + 1,
+    label: new Date(0, i).toLocaleString('default', { month: 'long' })
+  }));
+
+  // Generate year options (current year and a few before/after)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+
+  // Filter transactions by selected month and year
+  const filteredTransactions = transactions.filter((transaction) => {
+    const transactionDate = new Date(transaction.transaction_date);
+    const transactionMonth = transactionDate.getMonth() + 1;
+    const transactionYear = transactionDate.getFullYear();
+    return transactionMonth === filterMonth && transactionYear === filterYear;
+  });
+
   return (
     <PageTransition>
       <div className="p-4 md:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Transactions</h1>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) setEditTransaction(null);
-          }}>
-            <DialogTrigger asChild>
-              <button
-                type="button"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded flex items-center gap-2"
-                onClick={() => {
-                  setEditTransaction(null);
-                  setIsDialogOpen(true);
-                }}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            {/* Filter Dropdowns */}
+            <div className="flex gap-2">
+              <Select 
+                value={filterMonth.toString()} 
+                onValueChange={(value) => setFilterMonth(parseInt(value))}
               >
-                <span className="font-semibold">Add Transaction</span>
-              </button>
-            </DialogTrigger>
-            <DialogContent className="p-0 border-none bg-transparent shadow-none w-auto h-auto">
-              <DialogTitle className="sr-only">{editTransaction ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
-              <AddTransactionContainer
-                onSuccess={() => {
-                  setIsDialogOpen(false);
-                  setEditTransaction(null);
-                }}
-                editData={editTransaction}
-              />
-            </DialogContent>
-          </Dialog>
+                <SelectTrigger className="w-[120px] bg-card border border-primary/20">
+                  <SelectValue placeholder="Month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((month) => (
+                    <SelectItem key={month.value} value={month.value.toString()}>
+                      {month.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select 
+                value={filterYear.toString()} 
+                onValueChange={(value) => setFilterYear(parseInt(value))}
+              >
+                <SelectTrigger className="w-[100px] bg-card border border-primary/20">
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Add Transaction Button */}
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) setEditTransaction(null);
+            }}>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded flex items-center gap-2"
+                  onClick={() => {
+                    setEditTransaction(null);
+                    setIsDialogOpen(true);
+                  }}
+                >
+                  <span className="font-semibold">Add Transaction</span>
+                </button>
+              </DialogTrigger>
+              <DialogContent className="p-0 border-none bg-transparent shadow-none w-auto h-auto">
+                <DialogTitle className="sr-only">{editTransaction ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
+                <AddTransactionContainer
+                  onSuccess={() => {
+                    setIsDialogOpen(false);
+                    setEditTransaction(null);
+                  }}
+                  editData={editTransaction}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         {loading ? (
           <div className="flex items-center justify-center h-64">
@@ -84,7 +149,7 @@ export default function TransactionsPage() {
         ) : (
           <AnimatedCard title="Transaction List" description="All your income and expense records">
             <CardContent>
-              {transactions.length > 0 ? (
+              {filteredTransactions.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[700px] text-sm hidden md:table">
                     <thead>
@@ -99,7 +164,7 @@ export default function TransactionsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {transactions.map((transaction) => (
+                      {filteredTransactions.map((transaction) => (
                         <tr key={transaction.id} className="border-b border-primary/10 last:border-b-0">
                           <td className="py-3">{transaction.description}</td>
                           <td className="py-3">{transaction.category?.name || 'Uncategorized'}</td>
@@ -124,8 +189,28 @@ export default function TransactionsPage() {
                           </td>
                           <td className={`py-3 text-right ${transaction.type === 'income' ? 'text-green-500' : 'text-red-500'}`}>{transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}</td>
                           <td className="py-3 text-right flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" className="mr-2">Edit</Button>
-                            <Button variant="outline" size="sm" className="text-red-500 hover:text-red-500"><Trash2 className="h-4 w-4" /></Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="mr-2"
+                              onClick={() => {
+                                setEditTransaction(transaction);
+                                setIsDialogOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-500 hover:text-red-500"
+                              onClick={() => {
+                                setDeleteId(transaction.id);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </td>
                         </tr>
                       ))}
@@ -133,7 +218,7 @@ export default function TransactionsPage() {
                   </table>
                   {/* Mobile Card List */}
                   <div className="flex flex-col gap-3 md:hidden">
-                    {transactions.map((transaction) => (
+                    {filteredTransactions.map((transaction) => (
                       <div key={transaction.id} className="rounded-lg border bg-card p-4 shadow-sm">
                         <div className="flex justify-between items-center mb-2">
                           <div className="font-semibold">{transaction.description}</div>

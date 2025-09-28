@@ -10,18 +10,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Oxford Blue - Main background
-        'background': '#14213d',
-        // Black - Card/Container background
-        'card': '#000000',
-        // Orange (Web) - Primary/Accent
-        'primary': '#fca311',
-        'primary-foreground': '#ffffff',
-        // Platinum - Foreground text
-        'foreground': '#e5e5e5',
-        // White - Subtle text
-        'muted': '#ffffff',
-        'muted-foreground': '#ffffff',
+        // Dark Theme Colors
+        'background': '#0a0a0a', // Near Black
+        'foreground': '#ffffff', // Pure White
+        'muted': '#6b7280', // Dark Gray
+        'muted-foreground': '#9ca3af', // Light Gray
+        'card': 'rgba(255, 255, 255, 0.03)', // Very subtle glass
+        'border': 'rgba(255, 255, 255, 0.08)', // Subtle border
+        'primary': {
+          DEFAULT: '#9333ea', // Purple-600
+          start: '#7c3aed', // Purple-600
+          end: '#a855f7', // Purple-500
+        },
+        'success': '#39FF14', // Neon Green for income
+        'danger': '#F472B6', // Soft red/pink for expenses
+        'neon-green': '#39FF14', // Neon Green
+        'secondary': '#9CA3AF', // Light Gray
       },
       borderRadius: {
         lg: 'var(--radius)',

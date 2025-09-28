@@ -13,8 +13,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className="antialiased">
-        <div id="root">{children}</div>
+      <body className="antialiased font-sans">
+        <main className="p-8">
+          {children}
+        </main>
       </body>
     </html>
   );

@@ -51,6 +51,13 @@ export default function CategoriesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formData.name.trim()) {
+      alert('Please enter a category name');
+      return;
+    }
+    
     try {
       const data = {
         name: formData.name,
@@ -65,6 +72,7 @@ export default function CategoriesPage() {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving category:', error);
+      alert('Failed to save category. Please try again.');
     }
   };
 
@@ -156,6 +164,11 @@ export default function CategoriesPage() {
                   <Button 
                     type="submit" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={(e) => {
+                      // Fallback click handler in case form submit doesn't work
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }}
                   >
                     {currentCategory ? 'Update' : 'Add'} Category
                   </Button>
@@ -179,7 +192,7 @@ export default function CategoriesPage() {
                     .map((category) => (
                       <div 
                         key={category.id} 
-                        className="flex items-center justify-between p-4 bg-background border border-primary/20 rounded-md"
+                        className="flex items-center justify-between p-4 card-glass"
                       >
                         <div>
                           <span className="text-foreground font-medium">{category.name}</span>

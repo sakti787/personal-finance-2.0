@@ -85,6 +85,16 @@ export default function BudgetsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation
+    if (!formData.category_id) {
+      alert('Please select a category');
+      return;
+    }
+    if (formData.amount <= 0) {
+      alert('Please enter a valid budget amount');
+      return;
+    }
+    
     try {
       if (currentBudget) {
         // Update existing budget
@@ -99,6 +109,7 @@ export default function BudgetsPage() {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving budget:', error);
+      alert('Failed to save budget. Please try again.');
     }
   };
 
@@ -258,6 +269,11 @@ export default function BudgetsPage() {
                   <Button 
                     type="submit" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={(e) => {
+                      // Fallback click handler in case form submit doesn't work
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }}
                   >
                     {currentBudget ? 'Update' : 'Add'} Budget
                   </Button>
@@ -284,7 +300,7 @@ export default function BudgetsPage() {
                     return (
                       <div 
                         key={budget.id} 
-                        className="p-4 bg-background border border-primary/20 rounded-md animate-fadeIn"
+                        className="p-4 card-glass animate-fadeIn"
                       >
                         <div className="flex justify-between items-center mb-2">
                           <h3 className="text-lg font-medium">

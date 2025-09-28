@@ -25,6 +25,15 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Set preview URL for edit mode
+  useEffect(() => {
+    if (editData?.proof_url) {
+      setPreviewUrl(editData.proof_url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [editData]);
+
   // Mobile keyboard handling
   useEffect(() => {
     const handleFocus = () => {
@@ -113,7 +122,7 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
   };
 
   const handleDeletePhoto = () => {
-    setFormData({ ...formData, receipt: null });
+    setFormData({ ...formData, receipt: null, proof_url: undefined });
     setPreviewUrl(null);
     // Clear the file input
     const fileInput = document.getElementById('receipt') as HTMLInputElement;
@@ -150,7 +159,7 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
   };
 
   return (
-  <div ref={formRef} className="bg-card rounded-lg shadow p-4 md:p-6 max-h-[80vh] overflow-y-auto">
+  <div ref={formRef} className="bg-background rounded-lg shadow p-4 md:p-6 max-h-[80vh] overflow-y-auto">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold text-primary">Add Transaction</CardTitle>
       </CardHeader>
@@ -266,7 +275,16 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
             {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
           </div>
           <div className="flex justify-end pt-4 pb-2 md:pb-0">
-            <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full md:w-auto" disabled={loading}>
+            <Button 
+              type="submit" 
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full md:w-auto" 
+              disabled={loading}
+              onClick={(e) => {
+                // Fallback click handler in case form submit doesn't work
+                e.preventDefault();
+                handleSubmit(e);
+              }}
+            >
               {loading ? 'Saving...' : editData ? 'Update Transaction' : 'Add Transaction'}
             </Button>
           </div>

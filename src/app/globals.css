@@ -16,32 +16,29 @@
 }
 
 :root {
-  /* Oxford Blue - Main background */
-  --background: #14213d;
-  /* Platinum - Main text */
-  --foreground: #e5e5e5;
-  /* Black - Card/Container background */
-  --card: #000000;
-  --border: #fca311;
-  /* Orange (Web) - Primary/Accent */
-  --primary: #fca311;
+  /* Dark Theme Colors */
+  --background: #0a0a0a; /* Near Black */
+  --foreground: #ffffff; /* Pure White */
+  --muted: #6b7280; /* Dark Gray */
+  --muted-foreground: #9ca3af; /* Light Gray */
+  --card: rgba(255, 255, 255, 0.03); /* Very subtle glass */
+  --border: rgba(255, 255, 255, 0.08); /* Subtle border */
+  --primary: #9333ea; /* Purple-600 */
   --primary-foreground: #ffffff;
-  /* White - Subtle text */
-  --muted: #ffffff;
-  --muted-foreground: #ffffff;
+  --success: #39FF14; /* Neon Green */
+  --danger: #F472B6; /* Soft red/pink */
   --radius: 0.625rem;
 }
 
-/* Force dark mode - No light mode option */
+/* Force dark mode - Dark theme */
 .dark {
-  --background: #14213d;
-  --foreground: #e5e5e5;
-  --card: #000000;
-  --border: #fca311;
-  --primary: #fca311;
-  --primary-foreground: #ffffff;
-  --muted: #ffffff;
-  --muted-foreground: #ffffff;
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --muted: #6b7280;
+  --muted-foreground: #9ca3af;
+  --card: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.08);
+  --primary: #9333ea;
 }
 
 @layer base {
@@ -49,7 +46,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-b from-black via-purple-900 to-black text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -70,9 +67,15 @@
   }
 }
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@layer utilities {
+  .card-glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+  }
+}
 
 /* Mobile keyboard handling */
 @media (max-width: 768px) {

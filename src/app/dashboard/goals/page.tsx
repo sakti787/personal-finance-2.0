@@ -62,6 +62,16 @@ export default function GoalsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation
+    if (!formData.name.trim()) {
+      alert('Please enter a goal name');
+      return;
+    }
+    if (formData.target_amount <= 0) {
+      alert('Please enter a valid target amount');
+      return;
+    }
+    
     try {
       if (currentGoal) {
         // Update existing goal
@@ -76,11 +86,18 @@ export default function GoalsPage() {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving goal:', error);
+      alert('Failed to save goal. Please try again.');
     }
   };
 
   const handleAddFundsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (fundsToAdd <= 0) {
+      alert('Please enter a valid amount to add');
+      return;
+    }
     
     if (addFundsGoal && fundsToAdd > 0) {
       try {
@@ -90,6 +107,7 @@ export default function GoalsPage() {
         setAddFundsGoal(null);
       } catch (error) {
         console.error('Error adding funds to goal:', error);
+        alert('Failed to add funds. Please try again.');
       }
     }
   };
@@ -192,6 +210,11 @@ export default function GoalsPage() {
                   <Button 
                     type="submit" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={(e) => {
+                      // Fallback click handler in case form submit doesn't work
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }}
                   >
                     {currentGoal ? 'Update' : 'Add'} Goal
                   </Button>
@@ -218,7 +241,7 @@ export default function GoalsPage() {
                     return (
                       <div 
                         key={goal.id} 
-                        className="p-4 bg-background border border-primary/20 rounded-md flex flex-col animate-fadeIn"
+                        className="p-4 card-glass flex flex-col animate-fadeIn"
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex items-center">
@@ -319,6 +342,11 @@ export default function GoalsPage() {
                                     <Button 
                                       type="submit" 
                                       className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                      onClick={(e) => {
+                                        // Fallback click handler in case form submit doesn't work
+                                        e.preventDefault();
+                                        handleAddFundsSubmit(e);
+                                      }}
                                     >
                                       Add Funds
                                     </Button>
