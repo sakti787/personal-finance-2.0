@@ -10,15 +10,17 @@ import {
   Bar, 
   XAxis, 
   YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
+  CartesianGrid,
   PieChart,
   Pie,
   Cell,
   PieLabelRenderProps
 } from 'recharts';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+} from "@/components/ui/chart";
 import { TrendingUp } from 'lucide-react';
 import PlexusBackground from '@/components/PlexusBackground';
 
@@ -30,6 +32,18 @@ export default function ReportsPage() {
   } = useDataStore();
 
   const [selectedPeriod, setSelectedPeriod] = useState<'6m' | '12m' | 'all'>('6m');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     fetchTransactions();
@@ -107,6 +121,19 @@ export default function ReportsPage() {
 
   // Colors for the pie chart
   const COLORS = ['#7c3aed', '#a855f7', '#c084fc', '#ddd6fe', '#ede9fe', '#f3e8ff', '#faf5ff'];
+
+  // Create chart config for pie chart
+  const chartConfig = pieData.reduce((config, item, index) => {
+    config[item.name.toLowerCase().replace(/\s+/g, '')] = {
+      label: item.name,
+      color: COLORS[index % COLORS.length],
+    };
+    return config;
+  }, {
+    value: {
+      label: "Amount",
+    },
+  } as ChartConfig);
 
   if (loading) {
     return (
@@ -213,30 +240,51 @@ export default function ReportsPage() {
               <CardTitle>Expenses by Category</CardTitle>
               <CardDescription>Breakdown of expenses by category</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6">
               {pieData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={pieData}
+                <ChartContainer
+                  config={chartConfig}
+                  className={`[&_.recharts-pie-label-text]:fill-foreground mx-auto ${isMobile ? 'aspect-square max-h-[180px]' : 'aspect-square max-h-[300px]'} pb-0`}
+                >
+                  <PieChart margin={{ top: 20, right: 50, bottom: 20, left: 30 }}>
+                    <ChartTooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                              <p className="font-medium text-foreground">{data.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {formatCurrency(Number(data.value))}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Pie 
+                      data={pieData} 
+                      dataKey="value" 
                       cx="50%"
                       cy="50%"
-                      labelLine={true}
-                      label={({ name, percent }: PieLabelRenderProps) => {
+                      labelLine={isMobile ? true : true}
+                      label={isMobile ? ({ percent }: PieLabelRenderProps) => {
+                        const pct = typeof percent === 'number' ? percent : 0;
+                        return `${(pct * 100).toFixed(0)}%`;
+                      } : ({ name, percent }: PieLabelRenderProps) => {
                         const pct = typeof percent === 'number' ? percent : 0;
                         return `${name} ${(pct * 100).toFixed(0)}%`;
                       }}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={isMobile ? 50 : 100}
                     >
                       {pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   No expense data to display
@@ -252,7 +300,19 @@ export default function ReportsPage() {
             </CardHeader>
             <CardContent>
               {incomeExpenseData.some(d => d.Income > 0 || d.Expenses > 0) ? (
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer
+                  config={{
+                    Income: {
+                      label: "Income",
+                      color: "#7c3aed",
+                    },
+                    Expenses: {
+                      label: "Expenses", 
+                      color: "#a855f7",
+                    },
+                  }}
+                  className="h-[300px] w-full"
+                >
                   <BarChart accessibilityLayer data={incomeExpenseData}>
                     <CartesianGrid vertical={false} />
                     <XAxis
@@ -262,15 +322,28 @@ export default function ReportsPage() {
                       axisLine={false}
                       tickFormatter={(value) => value.slice(0, 3)}
                     />
-                    <Tooltip
+                    <ChartTooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                              <p className="font-medium text-foreground mb-2">{label}</p>
+                              {payload.map((entry, index) => (
+                                <p key={index} className="text-sm text-muted-foreground">
+                                  <span style={{ color: entry.color }}>{entry.dataKey}:</span>  {formatCurrency(Number(entry.value))}
+                                </p>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
                       cursor={false}
-                      formatter={(value) => formatCurrency(Number(value))}
-                      contentStyle={{ backgroundColor: '#000000', border: '1px solid #fca311' }}
                     />
                     <Bar dataKey="Income" fill="#7c3aed" radius={4} />
                     <Bar dataKey="Expenses" fill="#a855f7" radius={4} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   No monthly data to display
