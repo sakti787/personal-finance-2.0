@@ -294,17 +294,17 @@ export default function ReportsPage() {
             <CardTitle>Monthly Summary</CardTitle>
             <CardDescription>Detailed monthly financial overview</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 md:p-6">
             {Object.keys(monthlySummary).length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="overflow-x-auto w-full p-1 md:p-0">
+                <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="border-b border-primary/20">
-                      <th className="text-left py-2 text-muted-foreground">Month</th>
-                      <th className="text-right py-2 text-muted-foreground">Income</th>
-                      <th className="text-right py-2 text-muted-foreground">Expenses</th>
-                      <th className="text-right py-2 text-muted-foreground">Savings</th>
-                      <th className="text-right py-2 text-muted-foreground">Savings Rate</th>
+                      <th className="text-left py-2 px-2 md:py-2 md:px-0 text-muted-foreground text-xs md:text-sm">Month</th>
+                      <th className="text-right py-2 px-2 md:py-2 md:px-0 text-muted-foreground text-xs md:text-sm">Income</th>
+                      <th className="text-right py-2 px-2 md:py-2 md:px-0 text-muted-foreground text-xs md:text-sm">Expenses</th>
+                      <th className="text-right py-2 px-2 md:py-2 md:px-0 text-muted-foreground text-xs md:text-sm">Savings</th>
+                      <th className="text-right py-2 px-2 md:py-2 md:px-0 text-muted-foreground text-xs md:text-sm">Savings Rate</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -313,19 +313,19 @@ export default function ReportsPage() {
                       .map(([month, summary]) => {
                         const [year, monthNum] = month.split('-');
                         const date = new Date(parseInt(year), parseInt(monthNum) - 1);
-                        const monthName = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                        const monthName = date.toLocaleString('default', { month: 'short', year: 'numeric' });
                         const savings = summary.income - summary.expenses;
                         const savingsRate = summary.income > 0 ? (savings / summary.income) * 100 : 0;
                         
                         return (
                           <tr key={month} className="border-b border-primary/10 last:border-b-0">
-                            <td className="py-3">{monthName}</td>
-                            <td className="py-3 text-right text-green-500">{formatCurrency(summary.income)}</td>
-                            <td className="py-3 text-right text-red-500">{formatCurrency(summary.expenses)}</td>
-                            <td className={`py-3 text-right ${savings >= 0 ? 'text-primary' : 'text-red-500'}`}>
+                            <td className="py-2 px-2 md:py-3 md:px-0 text-xs md:text-sm">{monthName}</td>
+                            <td className="py-2 px-2 md:py-3 md:px-0 text-right text-green-500 text-xs md:text-sm">{formatCurrency(summary.income)}</td>
+                            <td className="py-2 px-2 md:py-3 md:px-0 text-right text-red-500 text-xs md:text-sm">{formatCurrency(summary.expenses)}</td>
+                            <td className={`py-2 px-2 md:py-3 md:px-0 text-right text-xs md:text-sm ${savings >= 0 ? 'text-primary' : 'text-red-500'}`}>
                               {formatCurrency(savings)}
                             </td>
-                            <td className={`py-3 text-right ${savingsRate >= 0 ? 'text-foreground' : 'text-red-500'}`}>
+                            <td className={`py-2 px-2 md:py-3 md:px-0 text-right text-xs md:text-sm ${savingsRate >= 0 ? 'text-foreground' : 'text-red-500'}`}>
                               {savingsRate.toFixed(1)}%
                             </td>
                           </tr>
@@ -335,7 +335,7 @@ export default function ReportsPage() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-6 text-muted-foreground">
+              <div className="text-center py-6 text-muted-foreground px-6">
                 No monthly data to display
               </div>
             )}

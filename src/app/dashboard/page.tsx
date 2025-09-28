@@ -111,33 +111,33 @@ export default function DashboardPage() {
           </div>
           {/* Recent Transactions Preview */}
           <AnimatedCard title="Recent Transactions" delay={0.6} className="card-glass">
-            <CardContent>
+            <CardContent className="p-0 md:p-6">
               {recentTransactions.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full rounded-lg overflow-hidden">
+                <div className="overflow-x-auto w-full p-1 md:p-0">
+                  <table className="w-full min-w-[600px] rounded-lg overflow-hidden">
                     <thead>
                       <tr className="border-b border-border bg-card/50 backdrop-blur-sm">
-                        <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Description</th>
-                        <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Category</th>
-                        <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Date</th>
-                        <th className="text-center py-3 px-4 font-semibold text-muted-foreground">Bukti</th>
-                        <th className="text-right py-3 px-4 font-semibold text-muted-foreground">Amount</th>
+                        <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Description</th>
+                        <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Category</th>
+                        <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Date</th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Bukti</th>
+                        <th className="text-right py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
                       {recentTransactions.map((transaction: import('@/lib/types').TransactionWithCategory) => (
                         <tr key={transaction.id} className="border-b border-border/50 hover:bg-card/30 transition-colors backdrop-blur-sm">
-                          <td className="py-3 px-4 align-middle flex items-center gap-2">
+                          <td className="py-2 px-2 md:py-3 md:px-4 align-middle flex items-center gap-1 md:gap-2">
                             {transaction.type === 'income' ? (
-                              <ArrowUpCircle className="w-5 h-5 text-green-400" />
+                              <ArrowUpCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400 flex-shrink-0" />
                             ) : (
-                              <ArrowDownCircle className="w-5 h-5 text-red-400" />
+                              <ArrowDownCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400 flex-shrink-0" />
                             )}
-                            <span>{transaction.description}</span>
+                            <span className="text-xs md:text-sm truncate max-w-[120px] md:max-w-none">{transaction.description}</span>
                           </td>
-                          <td className="py-3 px-4 align-middle">{transaction.category?.name || <span className="text-xs text-muted-foreground italic">-</span>}</td>
-                          <td className="py-3 px-4 align-middle">{transaction.transaction_date ? new Date(transaction.transaction_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : <span className="text-xs text-muted-foreground italic">-</span>}</td>
-                          <td className="py-3 px-4 align-middle text-center">
+                          <td className="py-2 px-2 md:py-3 md:px-4 align-middle text-xs md:text-sm">{transaction.category?.name || <span className="text-xs text-muted-foreground italic">-</span>}</td>
+                          <td className="py-2 px-2 md:py-3 md:px-4 align-middle text-xs md:text-sm">{transaction.transaction_date ? new Date(transaction.transaction_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : <span className="text-xs text-muted-foreground italic">-</span>}</td>
+                          <td className="py-2 px-2 md:py-3 md:px-4 align-middle text-center">
                             {transaction.proof_url ? (
                               <button
                                 className="text-primary hover:text-orange-500 text-xs"
@@ -152,7 +152,7 @@ export default function DashboardPage() {
                               <span className="text-xs text-muted-foreground italic">-</span>
                             )}
                           </td>
-                          <td className={`py-3 px-4 text-right align-middle font-bold ${transaction.type === 'income' ? 'text-success' : 'text-danger'}`}>
+                          <td className={`py-2 px-2 md:py-3 md:px-4 text-right align-middle font-bold text-xs md:text-sm ${transaction.type === 'income' ? 'text-success' : 'text-danger'}`}>
                             {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                           </td>
                         </tr>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-6 text-muted-foreground">
+                <div className="text-center py-6 text-muted-foreground px-6">
                   No transactions yet. Add your first transaction!
                 </div>
               )}
