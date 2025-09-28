@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useDataStore } from '@/lib/store/data-store';
 import { uploadImageToCloudinary } from '@/lib/utils/cloudinary';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { Trash2 } from 'lucide-react';
 
 import { TransactionWithCategory } from '@/lib/types';
 
@@ -17,10 +18,42 @@ type AddTransactionContainerProps = {
 };
 
 export default function AddTransactionContainer({ onSuccess, editData }: AddTransactionContainerProps) {
-  const { categories, addTransaction, fetchTransactions, fetchCategories } = useDataStore();
+  const { categories, addTransaction, updateTransaction, fetchTransactions, fetchCategories } = useDataStore();
+  const formRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     fetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mobile keyboard handling
+  useEffect(() => {
+    const handleFocus = () => {
+      // On mobile, scroll the focused input into view after a short delay
+      setTimeout(() => {
+        if (formRef.current) {
+          const focusedElement = document.activeElement;
+          if (focusedElement && formRef.current.contains(focusedElement)) {
+            focusedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 300);
+    };
+
+    const handleResize = () => {
+      // Handle viewport changes (keyboard show/hide)
+      if (formRef.current) {
+        formRef.current.scrollTop = 0;
+      }
+    };
+
+    // Add event listeners for mobile keyboard handling
+    document.addEventListener('focusin', handleFocus);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      document.removeEventListener('focusin', handleFocus);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
   const [formData, setFormData] = useState<{
     description: string;
@@ -79,7 +112,15 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
     setErrors({});
   };
 
-  const { updateTransaction } = useDataStore();
+  const handleDeletePhoto = () => {
+    setFormData({ ...formData, receipt: null });
+    setPreviewUrl(null);
+    // Clear the file input
+    const fileInput = document.getElementById('receipt') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -109,11 +150,11 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
   };
 
   return (
-  <div className="bg-card rounded-lg shadow p-6">
+  <div ref={formRef} className="bg-card rounded-lg shadow p-4 md:p-6 max-h-[80vh] overflow-y-auto">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold text-primary">Add Transaction</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-6 md:pb-4">
         <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
@@ -196,7 +237,17 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
             />
             {previewUrl && (
               <div className="mt-2">
-                <Image src={previewUrl} alt="Preview" className="max-h-40 rounded border" width={160} height={160} style={{ objectFit: 'contain', maxHeight: '10rem' }} />
+                <div className="relative inline-block">
+                  <Image src={previewUrl} alt="Preview" className="max-h-40 rounded border" width={160} height={160} style={{ objectFit: 'contain', maxHeight: '10rem' }} />
+                  <Button
+                    type="button"
+                    className="absolute top-1 right-1 h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white border-2 border-white shadow-lg"
+                    onClick={handleDeletePhoto}
+                    title="Delete photo"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -214,8 +265,8 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
             />
             {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
           </div>
-          <div className="flex justify-end pt-4">
-            <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
+          <div className="flex justify-end pt-4 pb-2 md:pb-0">
+            <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full md:w-auto" disabled={loading}>
               {loading ? 'Saving...' : editData ? 'Update Transaction' : 'Add Transaction'}
             </Button>
           </div>

@@ -53,14 +53,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md bg-card text-foreground">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
-          <CardDescription className="text-center">
+      <Card className="w-full max-w-md bg-card text-foreground mx-4">
+        <CardHeader className="space-y-1 px-4 md:px-6">
+          <CardTitle className="text-xl md:text-2xl text-center">Welcome back</CardTitle>
+          <CardDescription className="text-center text-sm md:text-base">
               Enter your credentials to access your account
             </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 md:px-6">
           {error && (
             <div className="mb-4 p-3 bg-red-500/20 text-red-500 rounded-md text-sm">
               {error}
@@ -68,7 +68,7 @@ export default function LoginPage() {
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -80,17 +80,18 @@ export default function LoginPage() {
                     setErrors(prev => ({ ...prev, email: '' }));
                   }
                 }}
-                className={`bg-background border ${errors.email ? 'border-red-500' : 'border-primary/20'}`}
+                className={`bg-background border h-11 text-base ${errors.email ? 'border-red-500' : 'border-primary/20'}`}
               />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -98,23 +99,23 @@ export default function LoginPage() {
                     setErrors(prev => ({ ...prev, password: '' }));
                   }
                 }}
-                className={`bg-background border ${errors.password ? 'border-red-500' : 'border-primary/20'}`}
+                className={`bg-background border h-11 text-base ${errors.password ? 'border-red-500' : 'border-primary/20'}`}
               />
               {errors.password && (
                 <p className="text-sm text-red-500">{errors.password}</p>
               )}
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90" 
+            <Button
+              type="submit"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-base font-medium"
               disabled={loading}
             >
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
+          <div className="mt-6 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link href="/auth/signup" className="text-primary hover:underline">
+            <Link href="/auth/signup" className="text-primary hover:underline font-medium">
               Sign up
             </Link>
           </div>

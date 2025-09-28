@@ -38,13 +38,13 @@ export default function DashboardPage() {
       <div className="bg-[#14213d] min-h-screen py-8 px-4 md:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Dashboard</h1>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">Dashboard</h1>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <button
                   type="button"
-                  className="bg-[#fca311] text-black hover:bg-[#ffb933] px-6 py-3 rounded-lg flex items-center gap-2 font-semibold shadow transition-colors duration-150"
+                  className="bg-[#fca311] text-black hover:bg-[#ffb933] px-4 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 font-semibold shadow transition-colors duration-150 text-sm md:text-base w-full sm:w-auto justify-center"
                   onClick={() => setIsDialogOpen(true)}
                 >
                   <span className="font-semibold">Add Transaction</span>
@@ -57,32 +57,32 @@ export default function DashboardPage() {
             </Dialog>
           </div>
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
             <AnimatedCard delay={0.1}>
               <CardHeader className="pb-2 flex flex-col items-center">
                 <div className="flex items-center gap-2 mb-2">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v8m0 0l-3-3m3 3l3-3" /></svg>
-                  <CardTitle className="text-base font-semibold text-muted-foreground">Total Income</CardTitle>
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v8m0 0l-3-3m3 3l3-3" /></svg>
+                  <CardTitle className="text-sm md:text-base font-semibold text-muted-foreground">Total Income</CardTitle>
                 </div>
-                <div className="text-4xl font-extrabold text-green-400 text-center">{formatCurrency(totalIncome)}</div>
+                <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-green-400 text-center">{formatCurrency(totalIncome)}</div>
               </CardHeader>
             </AnimatedCard>
             <AnimatedCard delay={0.2}>
               <CardHeader className="pb-2 flex flex-col items-center">
                 <div className="flex items-center gap-2 mb-2">
-                  <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16V8m0 0l-3 3m3-3l3 3" /></svg>
-                  <CardTitle className="text-base font-semibold text-muted-foreground">Total Expenses</CardTitle>
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16V8m0 0l-3 3m3-3l3 3" /></svg>
+                  <CardTitle className="text-sm md:text-base font-semibold text-muted-foreground">Total Expenses</CardTitle>
                 </div>
-                <div className="text-4xl font-extrabold text-red-400 text-center">{formatCurrency(totalExpenses)}</div>
+                <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-red-400 text-center">{formatCurrency(totalExpenses)}</div>
               </CardHeader>
             </AnimatedCard>
             <AnimatedCard delay={0.3}>
               <CardHeader className="pb-2 flex flex-col items-center">
                 <div className="flex items-center gap-2 mb-2">
-                  <svg className="w-5 h-5 text-[#fca311]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#fca311" strokeWidth="2" fill="none" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" /></svg>
-                  <CardTitle className="text-base font-semibold text-muted-foreground">Balance</CardTitle>
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-[#fca311]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#fca311" strokeWidth="2" fill="none" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" /></svg>
+                  <CardTitle className="text-sm md:text-base font-semibold text-muted-foreground">Balance</CardTitle>
                 </div>
-                <div className={`text-4xl font-extrabold text-center ${balance >= 0 ? 'text-[#fca311]' : 'text-red-400'}`}>{formatCurrency(balance)}</div>
+                <div className={`text-2xl md:text-3xl lg:text-4xl font-extrabold text-center ${balance >= 0 ? 'text-[#fca311]' : 'text-red-400'}`}>{formatCurrency(balance)}</div>
               </CardHeader>
             </AnimatedCard>
           </div>
