@@ -160,7 +160,7 @@ export default function BudgetsPage() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen aurora-background p-4 md:p-6">
+      <div className="min-h-screen aurora-background px-0 py-4 md:px-6 md:py-6">
         <PlexusBackground />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Budgets</h1>
@@ -290,7 +290,7 @@ export default function BudgetsPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : (
-          <AnimatedCard title="Budget Overview" description="Track your monthly spending against your budgets">
+          <AnimatedCard title="Budget Overview" description="Track your monthly spending against your budgets" className="max-w-none">
             <CardContent>
               {budgets.length > 0 ? (
                 <div className="space-y-6">
@@ -302,17 +302,18 @@ export default function BudgetsPage() {
                     return (
                       <div 
                         key={budget.id} 
-                        className="p-4 card-glass animate-fadeIn"
+                        className="px-2 py-4 sm:px-4 sm:py-4 card-glass animate-fadeIn"
                       >
-                        <div className="flex justify-between items-center mb-2">
-                          <h3 className="text-lg font-medium">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2 sm:gap-0">
+                          <h3 className="text-base sm:text-lg font-medium truncate">
                             {category?.name || 'Uncategorized'} - {months[budget.month - 1].label} {budget.year}
                           </h3>
-                          <div className="flex space-x-2">
+                          <div className="flex flex-row sm:flex-col gap-2 sm:gap-1">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleEdit(budget)}
+                              className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
                             >
                               Edit
                             </Button>
@@ -323,9 +324,10 @@ export default function BudgetsPage() {
                                 setDeleteId(budget.id);
                                 setIsDeleteDialogOpen(true);
                               }}
-                              className="text-red-500 hover:text-red-500"
+                              className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3 text-red-500 hover:text-red-500 hover:bg-red-50"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="ml-1 hidden sm:inline">Delete</span>
                             </Button>
                           </div>
                         </div>
@@ -334,22 +336,28 @@ export default function BudgetsPage() {
                           <span className="text-muted-foreground">
                             Expenses: {formatCurrency(expense)} / {formatCurrency(budget.amount)}
                           </span>
-                          <span className="text-muted-foreground">
+                          <span className="text-muted-foreground hidden sm:inline">
                             {percentage.toFixed(0)}%
                           </span>
                         </div>
+                        
+                        {/* Persentase di atas progress bar untuk mobile */}
+                        <div className="text-center text-sm font-medium text-primary mb-2 sm:hidden">
+                          {percentage.toFixed(0)}%
+                        </div>
+                        
                         <ProgressBar 
                           value={expense} 
                           max={budget.amount} 
                           showPercentage={false}
                           className="mb-2"
                         />
-                        <div className="flex justify-between text-sm">
-                          <span className={expense > budget.amount ? 'text-red-500' : 'text-foreground'}>
-                            {expense > budget.amount ? 'Over budget' : 'Under budget'}
-                          </span>
-                          <span className="text-foreground">
+                        <div className="flex flex-col sm:flex-row sm:justify-between text-sm gap-1 sm:gap-0">
+                          <span className="text-foreground order-2 sm:order-1">
                             {formatCurrency(budget.amount - expense)} remaining
+                          </span>
+                          <span className={`order-1 sm:order-2 ${expense > budget.amount ? 'text-red-500' : 'text-foreground'}`}>
+                            {expense > budget.amount ? 'Over budget' : 'Under budget'}
                           </span>
                         </div>
                       </div>

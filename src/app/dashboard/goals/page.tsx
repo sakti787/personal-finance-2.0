@@ -151,7 +151,7 @@ export default function GoalsPage() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen aurora-background p-4 md:p-6">
+      <div className="min-h-screen aurora-background px-0 py-4 md:px-6 md:py-6">
         <PlexusBackground />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Financial Goals</h1>
@@ -231,7 +231,7 @@ export default function GoalsPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : (
-          <AnimatedCard title="Financial Goals" description="Track your progress toward your financial goals">
+          <AnimatedCard title="Financial Goals" description="Track your progress toward your financial goals" className="max-w-none">
             <CardContent>
               {goals.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -245,16 +245,17 @@ export default function GoalsPage() {
                         key={goal.id} 
                         className="p-4 card-glass flex flex-col animate-fadeIn"
                       >
-                        <div className="flex justify-between items-start mb-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2 sm:gap-0">
                           <div className="flex items-center">
-                            <PiggyBank className="h-5 w-5 text-primary mr-2" />
-                            <h3 className="text-lg font-medium">{goal.name}</h3>
+                            <PiggyBank className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                            <h3 className="text-lg font-medium truncate">{goal.name}</h3>
                           </div>
-                          <div className="flex space-x-2">
+                          <div className="flex flex-row sm:flex-col gap-2 sm:gap-1">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleEdit(goal)}
+                              className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
                             >
                               Edit
                             </Button>
@@ -265,9 +266,10 @@ export default function GoalsPage() {
                                 setDeleteId(goal.id);
                                 setIsDeleteDialogOpen(true);
                               }}
-                              className="text-red-500 hover:text-red-500"
+                              className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3 text-red-500 hover:text-red-500 hover:bg-red-50"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="ml-1 hidden sm:inline">Delete</span>
                             </Button>
                           </div>
                         </div>
@@ -277,10 +279,16 @@ export default function GoalsPage() {
                             <span className="text-muted-foreground">
                               {formatCurrency(goal.current_amount)} / {formatCurrency(goal.target_amount)}
                             </span>
-                            <span className="text-muted-foreground">
+                            <span className="text-muted-foreground hidden sm:inline">
                               {percentage.toFixed(0)}%
                             </span>
                           </div>
+                          
+                          {/* Persentase di atas progress bar untuk mobile */}
+                          <div className="text-center text-sm font-medium text-primary mb-2 sm:hidden">
+                            {percentage.toFixed(0)}%
+                          </div>
+                          
                           <ProgressBar 
                             value={goal.current_amount} 
                             max={goal.target_amount} 
@@ -294,7 +302,13 @@ export default function GoalsPage() {
                             <span className="text-green-500">
                               {formatCurrency(goal.target_amount - goal.current_amount)} to go
                             </span>
-                            <span className={percentage >= 100 ? 'text-green-500' : 'text-foreground'}>
+                            <span className={`hidden sm:inline ${percentage >= 100 ? 'text-green-500' : 'text-foreground'}`}>
+                              {percentage >= 100 ? 'Goal achieved!' : 'Save more'}
+                            </span>
+                          </div>
+                          
+                          <div className="text-center text-sm mb-2 sm:hidden">
+                            <span className={percentage >= 100 ? 'text-green-500 font-medium' : 'text-foreground'}>
                               {percentage >= 100 ? 'Goal achieved!' : 'Save more'}
                             </span>
                           </div>

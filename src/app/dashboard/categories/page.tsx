@@ -194,17 +194,18 @@ export default function CategoriesPage() {
                     .map((category) => (
                       <div 
                         key={category.id} 
-                        className="flex items-center justify-between p-4 card-glass"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 card-glass gap-2 sm:gap-0"
                       >
-                        <div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                           <span className="text-foreground font-medium">{category.name}</span>
-                          <span className={`ml-2 px-2 py-0.5 rounded text-xs ${category.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>{category.type.charAt(0).toUpperCase() + category.type.slice(1)}</span>
+                          <span className={`px-2 py-0.5 rounded text-xs self-start sm:self-auto ${category.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>{category.type.charAt(0).toUpperCase() + category.type.slice(1)}</span>
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex flex-row sm:flex-col gap-2 sm:gap-1">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(category)}
+                            className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
                           >
                             Edit
                           </Button>
@@ -215,9 +216,10 @@ export default function CategoriesPage() {
                               setDeleteId(category.id);
                               setIsDeleteDialogOpen(true);
                             }}
-                            className="text-red-500 hover:text-red-500"
+                            className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3 text-red-500 hover:text-red-500 hover:bg-red-50"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="ml-1 hidden sm:inline">Delete</span>
                           </Button>
                         </div>
                       </div>
