@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useDataStore } from '@/lib/store/data-store';
 import { formatCurrency } from '@/lib/utils';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { 
   BarChart, 
   Bar, 
@@ -20,6 +19,7 @@ import {
   Cell,
   PieLabelRenderProps
 } from 'recharts';
+import { TrendingUp } from 'lucide-react';
 import PlexusBackground from '@/components/PlexusBackground';
 
 export default function ReportsPage() {
@@ -106,7 +106,7 @@ export default function ReportsPage() {
   }, {});
 
   // Colors for the pie chart
-  const COLORS = ['#fca311', '#e5e5e5', '#ffffff', '#14213d', '#000000', '#f8f9fa', '#212529'];
+  const COLORS = ['#7c3aed', '#a855f7', '#c084fc', '#ddd6fe', '#ede9fe', '#f3e8ff', '#faf5ff'];
 
   if (loading) {
     return (
@@ -126,7 +126,7 @@ export default function ReportsPage() {
         
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-          <AnimatedCard delay={0.1}>
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
             </CardHeader>
@@ -137,9 +137,9 @@ export default function ReportsPage() {
                   .reduce((sum, t) => sum + t.amount, 0))}
               </div>
             </CardContent>
-          </AnimatedCard>
+          </Card>
           
-          <AnimatedCard delay={0.2}>
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
             </CardHeader>
@@ -150,9 +150,9 @@ export default function ReportsPage() {
                   .reduce((sum, t) => sum + t.amount, 0))}
               </div>
             </CardContent>
-          </AnimatedCard>
+          </Card>
           
-          <AnimatedCard delay={0.3}>
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Net Savings</CardTitle>
             </CardHeader>
@@ -166,7 +166,7 @@ export default function ReportsPage() {
                   .reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0))}
               </div>
             </CardContent>
-          </AnimatedCard>
+          </Card>
         </div>
 
         {/* Period Selector */}
@@ -208,7 +208,11 @@ export default function ReportsPage() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Expense by Category Pie Chart */}
-          <AnimatedCard title="Expenses by Category" delay={0.4}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Expenses by Category</CardTitle>
+              <CardDescription>Breakdown of expenses by category</CardDescription>
+            </CardHeader>
             <CardContent>
               {pieData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
@@ -222,7 +226,7 @@ export default function ReportsPage() {
                         const pct = typeof percent === 'number' ? percent : 0;
                         return `${name} ${(pct * 100).toFixed(0)}%`;
                       }}
-                      outerRadius={80}
+                      outerRadius={120}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -239,27 +243,32 @@ export default function ReportsPage() {
                 </div>
               )}
             </CardContent>
-          </AnimatedCard>
+          </Card>
 
           {/* Income vs Expenses Chart */}
-          <AnimatedCard title="Income vs Expenses" delay={0.5}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Income vs Expenses</CardTitle>
+            </CardHeader>
             <CardContent>
               {incomeExpenseData.some(d => d.Income > 0 || d.Expenses > 0) ? (
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={incomeExpenseData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-                    <XAxis dataKey="name" stroke="#e5e5e5" />
-                    <YAxis stroke="#e5e5e5" tickFormatter={(value) => `Rp${(value/1000).toFixed(0)}k`} />
-                    <Tooltip 
-                      formatter={(value) => formatCurrency(Number(value))} 
+                  <BarChart accessibilityLayer data={incomeExpenseData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                    />
+                    <Tooltip
+                      cursor={false}
+                      formatter={(value) => formatCurrency(Number(value))}
                       contentStyle={{ backgroundColor: '#000000', border: '1px solid #fca311' }}
                     />
-                    <Legend />
-                    <Bar dataKey="Income" fill="#fca311" name="Income" />
-                    <Bar dataKey="Expenses" fill="#e5e5e5" name="Expenses" />
+                    <Bar dataKey="Income" fill="#7c3aed" radius={4} />
+                    <Bar dataKey="Expenses" fill="#a855f7" radius={4} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -268,11 +277,23 @@ export default function ReportsPage() {
                 </div>
               )}
             </CardContent>
-          </AnimatedCard>
+            <CardFooter className="flex-col items-start gap-2 text-sm">
+              <div className="flex gap-2 leading-none font-medium">
+                Financial overview <TrendingUp className="h-4 w-4" />
+              </div>
+              <div className="text-muted-foreground leading-none">
+                Showing income and expenses for the last 6 months
+              </div>
+            </CardFooter>
+          </Card>
         </div>
 
         {/* Monthly Summary Table */}
-        <AnimatedCard title="Monthly Summary" delay={0.6}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Summary</CardTitle>
+            <CardDescription>Detailed monthly financial overview</CardDescription>
+          </CardHeader>
           <CardContent>
             {Object.keys(monthlySummary).length > 0 ? (
               <div className="overflow-x-auto">
@@ -319,7 +340,7 @@ export default function ReportsPage() {
               </div>
             )}
           </CardContent>
-        </AnimatedCard>
+        </Card>
       </div>
     </PageTransition>
   );
