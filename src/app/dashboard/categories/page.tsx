@@ -29,6 +29,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { Trash2, Plus } from 'lucide-react';
 import PlexusBackground from '@/components/PlexusBackground';
+import { GlassPanel } from '@/components/ui/glass-panel';
 
 export default function CategoriesPage() {
   const { 
@@ -101,13 +102,21 @@ export default function CategoriesPage() {
     setIsDialogOpen(true);
   };
 
+  // (Removed legacy body scroll lock; layout refactor restored stable fixed dialogs.)
+
   return (
     <PageTransition>
       <div className="min-h-screen aurora-background p-4 md:p-6">
         <PlexusBackground />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Categories</h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setCurrentCategory(null);
+              setFormData({ name: '', type: 'expense' });
+            }
+          }}>
             <DialogTrigger asChild>
               <Button 
                 onClick={openAddDialog}
@@ -116,66 +125,66 @@ export default function CategoriesPage() {
                 <Plus className="mr-2 h-4 w-4" /> Add Category
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-card text-foreground">
-              <DialogHeader>
-                <DialogTitle>
-                  {currentCategory ? 'Edit Category' : 'Add New Category'}
-                </DialogTitle>
-                <DialogDescription>
-                  {currentCategory 
-                    ? 'Update the category name' 
-                    : 'Enter a name for the new category'}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Category Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="e.g. Food, Transportation, Salary"
-                    required
-                    className="bg-background border border-primary/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="type">Type</Label>
-                  <select
-                    id="type"
-                    value={formData.type}
-                    onChange={e => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' })}
-                    className="bg-background border border-primary/20 rounded px-3 py-2 w-full"
-                  >
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                  </select>
-                </div>
-                
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setIsDialogOpen(false);
-                      resetForm();
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
-                    onClick={(e) => {
-                      // Fallback click handler in case form submit doesn't work
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }}
-                  >
-                    {currentCategory ? 'Update' : 'Add'} Category
-                  </Button>
-                </div>
-              </form>
+            <DialogContent transparent className="p-0">
+              <GlassPanel className="p-5 md:p-6 w-[94vw] max-w-sm mx-auto sm:mx-0 sm:w-full sm:max-w-md md:max-w-lg md:rounded-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader className="pb-2">
+                  <DialogTitle className="text-lg font-semibold text-primary">
+                    {currentCategory ? 'Edit Category' : 'Add New Category'}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs sm:text-sm opacity-80">
+                    {currentCategory
+                      ? 'Update the category details'
+                      : 'Create a custom category to organize your transactions'}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Category Name</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. Food, Transportation, Salary"
+                      required
+                      className="bg-background border border-primary/20"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="type">Type</Label>
+                    <select
+                      id="type"
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' })}
+                      className="bg-background border border-primary/20 rounded px-3 py-2 w-full"
+                    >
+                      <option value="income">Income</option>
+                      <option value="expense">Expense</option>
+                    </select>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsDialogOpen(false);
+                        resetForm();
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }}
+                    >
+                      {currentCategory ? 'Update' : 'Add'} Category
+                    </Button>
+                  </div>
+                </form>
+              </GlassPanel>
             </DialogContent>
           </Dialog>
         </div>

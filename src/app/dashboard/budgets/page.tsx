@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { GlassPanel } from '@/components/ui/glass-panel';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { Trash2, Plus } from 'lucide-react';
 import PlexusBackground from '@/components/PlexusBackground';
+import { cn } from '@/lib/utils';
 
 export default function BudgetsPage() {
   const { 
@@ -64,6 +66,7 @@ export default function BudgetsPage() {
     year: new Date().getFullYear(),   // Current year
   });
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ category_id?: string; amount?: string }>({});
 
   useEffect(() => {
     fetchBudgets();
@@ -85,16 +88,11 @@ export default function BudgetsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validation
-    if (!formData.category_id) {
-      alert('Please select a category');
-      return;
-    }
-    if (formData.amount <= 0) {
-      alert('Please enter a valid budget amount');
-      return;
-    }
+    const newErrors: { category_id?: string; amount?: string } = {};
+    if (!formData.category_id) newErrors.category_id = 'Category is required';
+    if (formData.amount <= 0) newErrors.amount = 'Amount must be greater than 0';
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length) return;
     
     try {
       if (currentBudget) {
@@ -141,6 +139,7 @@ export default function BudgetsPage() {
       year: new Date().getFullYear(),
     });
     setCurrentBudget(null);
+    setErrors({});
   };
 
   const openAddDialog = () => {
@@ -173,25 +172,32 @@ export default function BudgetsPage() {
                 <Plus className="mr-2 h-4 w-4" /> Add Budget
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-card text-foreground">
-              <DialogHeader>
-                <DialogTitle>
-                  {currentBudget ? 'Edit Budget' : 'Add New Budget'}
-                </DialogTitle>
-                <DialogDescription>
-                  {currentBudget 
-                    ? 'Update the budget details' 
-                    : 'Set a monthly budget for a category'}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+            <DialogContent transparent className="p-0">
+              <GlassPanel className="p-5 md:p-6 w-[94vw] max-w-sm mx-auto sm:mx-0 sm:w-full sm:max-w-md md:rounded-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader className="pb-2">
+                  <DialogTitle className="text-lg font-semibold text-primary">
+                    {currentBudget ? 'Edit Budget' : 'Add New Budget'}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs sm:text-sm opacity-80">
+                    {currentBudget 
+                      ? 'Update the budget details' 
+                      : 'Set a monthly budget for a category'}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Select 
                   value={formData.category_id || "uncategorized"} 
-                  onValueChange={(value) => setFormData({...formData, category_id: value === "uncategorized" ? "" : value})}
+                      onValueChange={(value) => {
+                        setFormData({...formData, category_id: value === "uncategorized" ? "" : value});
+                        if (errors.category_id) setErrors(prev => ({ ...prev, category_id: undefined }));
+                      }}
                 >
-                  <SelectTrigger className="bg-background border border-primary/20">
+                      <SelectTrigger className={cn(
+                        'bg-background border',
+                        errors.category_id ? 'border-red-500' : 'border-primary/20'
+                      )}>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -205,19 +211,25 @@ export default function BudgetsPage() {
                       ))}
                   </SelectContent>
                 </Select>
-              </div>
-                
-                <div className="space-y-2">
+                    {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
+                </div>
+                  <div className="space-y-2">
                   <Label htmlFor="amount">Budget Amount</Label>
                   <CurrencyInput
                     value={formData.amount}
-                    onChange={(value) => setFormData({...formData, amount: value})}
+                      onChange={(value) => {
+                        setFormData({...formData, amount: value});
+                        if (errors.amount) setErrors(prev => ({ ...prev, amount: undefined }));
+                      }}
                     placeholder="0"
-                    className="bg-background border border-primary/20"
+                    className={cn(
+                      'bg-background border',
+                      errors.amount ? 'border-red-500' : 'border-primary/20'
+                    )}
                   />
+                    {errors.amount && <p className="text-sm text-red-500">{errors.amount}</p>}
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="month">Month</Label>
                     <Select 
@@ -255,9 +267,8 @@ export default function BudgetsPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-                
-                <div className="flex justify-end space-x-2 pt-4">
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
                   <Button 
                     type="button" 
                     variant="outline" 
@@ -279,8 +290,9 @@ export default function BudgetsPage() {
                   >
                     {currentBudget ? 'Update' : 'Add'} Budget
                   </Button>
-                </div>
-              </form>
+                  </div>
+                </form>
+              </GlassPanel>
             </DialogContent>
           </Dialog>
         </div>

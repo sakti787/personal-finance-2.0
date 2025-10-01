@@ -56,6 +56,9 @@ export default function TransactionsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Scroll lock no longer needed after layout refactor; removed.
+
+
   // Dynamic years & months based on existing transactions
   const availableYearsSet = new Set<number>();
   const yearToMonths: Record<number, Set<number>> = {};
@@ -133,7 +136,7 @@ export default function TransactionsPage() {
                 </button>
               </DialogTrigger>
             </div>
-            <DialogContent transparent className="p-0 w-auto h-auto animate-mobile-dialog-pop sm:animate-none top-[36%] sm:top-[44%] md:top-[43%] lg:top-[42.5%]">
+            <DialogContent transparent className="p-0">
               <DialogTitle className="sr-only">{editTransaction ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
               <AddTransactionContainer
                 onSuccess={() => {

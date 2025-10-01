@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useDataStore } from '@/lib/store/data-store';
 import type { Goal } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +33,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { Trash2, Plus, PiggyBank } from 'lucide-react';
 import PlexusBackground from '@/components/PlexusBackground';
+import { GlassPanel } from '@/components/ui/glass-panel';
 
 export default function GoalsPage() {
   const { 
@@ -55,6 +57,7 @@ export default function GoalsPage() {
   });
   const [fundsToAdd, setFundsToAdd] = useState(0);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ name?: string; target_amount?: string; fundsToAdd?: string }>({});
 
   useEffect(() => {
     fetchGoals();
@@ -62,16 +65,11 @@ export default function GoalsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validation
-    if (!formData.name.trim()) {
-      alert('Please enter a goal name');
-      return;
-    }
-    if (formData.target_amount <= 0) {
-      alert('Please enter a valid target amount');
-      return;
-    }
+    const newErrors: { name?: string; target_amount?: string } = {};
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (formData.target_amount <= 0) newErrors.target_amount = 'Amount must be greater than 0';
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    if (Object.keys(newErrors).length) return;
     
     try {
       if (currentGoal) {
@@ -87,28 +85,25 @@ export default function GoalsPage() {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving goal:', error);
-      alert('Failed to save goal. Please try again.');
+      // Optionally set a generic error state
     }
   };
 
   const handleAddFundsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validation
-    if (fundsToAdd <= 0) {
-      alert('Please enter a valid amount to add');
-      return;
-    }
-    
-    if (addFundsGoal && fundsToAdd > 0) {
+    const newErrors: { fundsToAdd?: string } = {};
+    if (fundsToAdd <= 0) newErrors.fundsToAdd = 'Amount must be greater than 0';
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    if (Object.keys(newErrors).length) return;
+    if (addFundsGoal) {
       try {
         await updateGoalAmount(addFundsGoal.id, fundsToAdd);
         setIsAddFundsDialogOpen(false);
         setFundsToAdd(0);
         setAddFundsGoal(null);
+        setErrors(prev => ({ ...prev, fundsToAdd: undefined }));
       } catch (error) {
         console.error('Error adding funds to goal:', error);
-        alert('Failed to add funds. Please try again.');
       }
     }
   };
@@ -142,6 +137,7 @@ export default function GoalsPage() {
       target_amount: 0,
     });
     setCurrentGoal(null);
+    setErrors(prev => ({ ...prev, name: undefined, target_amount: undefined }));
   };
 
   const openAddDialog = () => {
@@ -164,41 +160,54 @@ export default function GoalsPage() {
                 <Plus className="mr-2 h-4 w-4" /> Add Goal
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-card text-foreground">
-              <DialogHeader>
-                <DialogTitle>
-                  {currentGoal ? 'Edit Goal' : 'Add New Goal'}
-                </DialogTitle>
-                <DialogDescription>
-                  {currentGoal 
-                    ? 'Update the goal details' 
-                    : 'Set a financial goal to track your savings'}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+            <DialogContent transparent className="p-0">
+              <GlassPanel className="p-5 md:p-6 w-[94vw] max-w-sm mx-auto sm:mx-0 sm:w-full sm:max-w-md md:rounded-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader className="pb-2">
+                  <DialogTitle className="text-lg font-semibold text-primary">
+                    {currentGoal ? 'Edit Goal' : 'Add New Goal'}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs sm:text-sm opacity-80">
+                    {currentGoal 
+                      ? 'Update the goal details' 
+                      : 'Set a financial goal to track your savings'}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="space-y-2">
                   <Label htmlFor="name">Goal Name</Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => {
+                      setFormData({...formData, name: e.target.value});
+                      if (errors.name) setErrors(prev => ({ ...prev, name: undefined }));
+                    }}
                     placeholder="e.g. Emergency Fund, Vacation"
                     required
-                    className="bg-background border border-primary/20"
+                    className={cn(
+                      'bg-background border',
+                      errors.name ? 'border-red-500' : 'border-primary/20'
+                    )}
                   />
-                </div>
-                
-                <div className="space-y-2">
+                    {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                  </div>
+                  <div className="space-y-2">
                   <Label htmlFor="target_amount">Target Amount</Label>
                   <CurrencyInput
                     value={formData.target_amount}
-                    onChange={(value) => setFormData({...formData, target_amount: value})}
+                    onChange={(value) => {
+                      setFormData({...formData, target_amount: value});
+                      if (errors.target_amount) setErrors(prev => ({ ...prev, target_amount: undefined }));
+                    }}
                     placeholder="0"
-                    className="bg-background border border-primary/20"
+                    className={cn(
+                      'bg-background border',
+                      errors.target_amount ? 'border-red-500' : 'border-primary/20'
+                    )}
                   />
-                </div>
-                
-                <div className="flex justify-end space-x-2 pt-4">
+                    {errors.target_amount && <p className="text-sm text-red-500">{errors.target_amount}</p>}
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
                   <Button 
                     type="button" 
                     variant="outline" 
@@ -220,8 +229,9 @@ export default function GoalsPage() {
                   >
                     {currentGoal ? 'Update' : 'Add'} Goal
                   </Button>
-                </div>
-              </form>
+                  </div>
+                </form>
+              </GlassPanel>
             </DialogContent>
           </Dialog>
         </div>
@@ -325,25 +335,32 @@ export default function GoalsPage() {
                                   Add Funds
                                 </Button>
                               </DialogTrigger>
-                              <DialogContent className="sm:max-w-md bg-card text-foreground">
-                                <DialogHeader>
-                                  <DialogTitle>Add Funds to Goal</DialogTitle>
-                                  <DialogDescription>
-                                    Add money toward your goal: {goal.name}
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <form onSubmit={handleAddFundsSubmit} className="space-y-4">
-                                  <div className="space-y-2">
+                              <DialogContent transparent className="p-0">
+                                <GlassPanel className="p-5 md:p-6 w-[94vw] max-w-sm mx-auto sm:mx-0 sm:w-full sm:max-w-md md:rounded-2xl max-h-[70vh] overflow-y-auto">
+                                  <DialogHeader className="pb-2">
+                                    <DialogTitle className="text-lg font-semibold text-primary">Add Funds to Goal</DialogTitle>
+                                    <DialogDescription className="text-xs sm:text-sm opacity-80">
+                                      Add money toward your goal: {goal.name}
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <form onSubmit={handleAddFundsSubmit} className="space-y-5">
+                                    <div className="space-y-2">
                                     <Label htmlFor="addFunds">Amount to Add</Label>
                                     <CurrencyInput
                                       value={fundsToAdd}
-                                      onChange={setFundsToAdd}
+                                      onChange={(v) => {
+                                        setFundsToAdd(v);
+                                        if (errors.fundsToAdd) setErrors(prev => ({ ...prev, fundsToAdd: undefined }));
+                                      }}
                                       placeholder="0"
-                                      className="bg-background border border-primary/20"
+                                      className={cn(
+                                        'bg-background border',
+                                        errors.fundsToAdd ? 'border-red-500' : 'border-primary/20'
+                                      )}
                                     />
-                                  </div>
-                                  
-                                  <div className="flex justify-end space-x-2 pt-4">
+                                      {errors.fundsToAdd && <p className="text-sm text-red-500">{errors.fundsToAdd}</p>}
+                                    </div>
+                                    <div className="flex justify-end gap-2 pt-2">
                                     <Button 
                                       type="button" 
                                       variant="outline" 
@@ -366,8 +383,9 @@ export default function GoalsPage() {
                                     >
                                       Add Funds
                                     </Button>
-                                  </div>
-                                </form>
+                                    </div>
+                                  </form>
+                                </GlassPanel>
                               </DialogContent>
                             </Dialog>
                           </div>

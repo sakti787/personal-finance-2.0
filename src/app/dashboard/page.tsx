@@ -86,7 +86,7 @@ export default function DashboardPage() {
                   </button>
                 </DialogTrigger>
               </div>
-              <DialogContent transparent className="p-0 w-auto h-auto animate-mobile-dialog-pop top-[30%] sm:top-[44%] md:top-[43%] lg:top-[42.5%]">
+              <DialogContent transparent className="p-0">
                 <DialogTitle className="sr-only">Add Transaction</DialogTitle>
                 <AddTransactionContainer onSuccess={() => { setIsDialogOpen(false); fetchTransactions(); }} />
               </DialogContent>

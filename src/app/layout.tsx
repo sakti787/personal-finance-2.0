@@ -13,11 +13,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      {/* Added GPU compositing hacks (transform-gpu & will-change) to preserve animated background under mobile dropdown portals */}
-      <body className="antialiased font-sans aurora-background transform-gpu will-change-transform will-change-[opacity,transform] backface-hidden [perspective:1000px]">
-        <main className="p-8">
-          {children}
-        </main>
+      <body className="antialiased font-sans">
+        {/* Background + any transforms moved off <body> so fixed portals (Dialog) aren't affected */}
+        <div className="aurora-background transform-gpu will-change-transform will-change-[opacity,transform] backface-hidden [perspective:1000px] min-h-screen relative z-0">
+          <main className="relative z-10 p-8">
+            {children}
+          </main>
+        </div>
+        {/* DialogPortal nodes will mount here at end of body, outside transform context */}
       </body>
     </html>
   );

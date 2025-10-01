@@ -9,6 +9,7 @@ import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Trash2 } from 'lucide-react';
+import { GlassPanel } from '@/components/ui/glass-panel';
 
 import { TransactionWithCategory } from '@/lib/types';
 
@@ -159,11 +160,9 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
   };
 
   return (
-  <div
+  <GlassPanel
     ref={formRef}
-  className="relative rounded-2xl p-4 md:p-6 max-h-[80vh] overflow-y-auto w-[94vw] max-w-sm mx-auto md:mx-0 md:w-full md:max-w-lg sm:max-w-md lg:max-w-xl md:rounded-2xl md:max-h-none md:overflow-visible border border-white/10
-  backdrop-blur-md supports-[backdrop-filter]:bg-white/5 dark:supports-[backdrop-filter]:bg-neutral-900/10 bg-white/8 dark:bg-neutral-900/20
-  before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:ring-1 before:ring-white/10 before:pointer-events-none before:bg-gradient-to-br before:from-white/10 before:to-transparent dark:before:from-white/5"
+    className="p-4 md:p-6 max-h-[80vh] overflow-y-auto w-[94vw] max-w-sm mx-auto md:mx-0 md:w-full md:max-w-lg sm:max-w-md lg:max-w-xl md:rounded-2xl md:max-h-none md:overflow-visible"
   >
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold text-primary">Add Transaction</CardTitle>
@@ -300,6 +299,6 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
           </div>
         </form>
       </CardContent>
-    </div>
+    </GlassPanel>
   );
 }
