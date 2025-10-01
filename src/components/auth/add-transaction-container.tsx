@@ -159,128 +159,138 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
   };
 
   return (
-  <div ref={formRef} className="bg-background rounded-lg shadow p-4 md:p-6 max-h-[80vh] overflow-y-auto">
+  <div
+    ref={formRef}
+  className="relative rounded-2xl p-4 md:p-6 max-h-[80vh] overflow-y-auto w-[94vw] max-w-sm mx-auto md:mx-0 md:w-full md:max-w-lg sm:max-w-md lg:max-w-xl md:rounded-2xl md:max-h-none md:overflow-visible border border-white/10
+  backdrop-blur-md supports-[backdrop-filter]:bg-white/5 dark:supports-[backdrop-filter]:bg-neutral-900/10 bg-white/8 dark:bg-neutral-900/20
+  before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:ring-1 before:ring-white/10 before:pointer-events-none before:bg-gradient-to-br before:from-white/10 before:to-transparent dark:before:from-white/5"
+  >
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold text-primary">Add Transaction</CardTitle>
       </CardHeader>
       <CardContent className="pb-6 md:pb-4">
-        <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Input
-              id="description"
-              value={formData.description}
-              onChange={(e) => {
-                setFormData({ ...formData, description: e.target.value });
-                if (errors.description) setErrors((prev) => ({ ...prev, description: '' }));
-              }}
-              className={`bg-background border ${errors.description ? 'border-red-500' : 'border-primary/20'}`}
-            />
-            {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
-            <CurrencyInput
-              value={formData.amount}
-              onChange={(value) => {
-                setFormData({ ...formData, amount: value });
-                if (errors.amount) setErrors((prev) => ({ ...prev, amount: '' }));
-              }}
-              placeholder="0"
-              className={`bg-background border ${errors.amount ? 'border-red-500' : 'border-primary/20'}`}
-            />
-            {errors.amount && <p className="text-sm text-red-500">{errors.amount}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value: 'income' | 'expense') => setFormData({ ...formData, type: value })}
-            >
-              <SelectTrigger className="bg-background border border-primary/20">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="income">Income</SelectItem>
-                <SelectItem value="expense">Expense</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Select
-              value={formData.category_id || 'uncategorized'}
-              onValueChange={(value) => setFormData({ ...formData, category_id: value === 'uncategorized' ? '' : value })}
-            >
-              <SelectTrigger className="bg-background border border-primary/20">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="uncategorized">Uncategorized</SelectItem>
-                {categories
-                  .filter((category) => category.type === formData.type)
-                  .map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="receipt">Foto Bukti (Opsional)</Label>
-            <Input
-              id="receipt"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setFormData({ ...formData, receipt: file });
-                if (file) {
-                  const url = URL.createObjectURL(file);
-                  setPreviewUrl(url);
-                } else {
-                  setPreviewUrl(null);
-                }
-              }}
-            />
-            {previewUrl && (
-              <div className="mt-2">
-                <div className="relative inline-block">
-                  <Image src={previewUrl} alt="Preview" className="max-h-40 rounded border" width={160} height={160} style={{ objectFit: 'contain', maxHeight: '10rem' }} />
-                  <Button
-                    type="button"
-                    className="absolute top-1 right-1 h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white border-2 border-white shadow-lg"
-                    onClick={handleDeletePhoto}
-                    title="Delete photo"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
+          <div className="grid gap-6 md:gap-5 md:grid-cols-2">
+            <div className="flex flex-col gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => {
+                    setFormData({ ...formData, description: e.target.value });
+                    if (errors.description) setErrors((prev) => ({ ...prev, description: '' }));
+                  }}
+                  className={`bg-background border ${errors.description ? 'border-red-500' : 'border-primary/20'}`}
+                />
+                {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
               </div>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
-            <Input
-              id="date"
-              type="date"
-              value={formData.transaction_date}
-              onChange={(e) => {
-                setFormData({ ...formData, transaction_date: e.target.value });
-                if (errors.date) setErrors((prev) => ({ ...prev, date: '' }));
-              }}
-              className={`bg-background border ${errors.date ? 'border-red-500' : 'border-primary/20'}`}
-            />
-            {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
+              <div className="space-y-2">
+                <Label htmlFor="amount">Amount</Label>
+                <CurrencyInput
+                  value={formData.amount}
+                  onChange={(value) => {
+                    setFormData({ ...formData, amount: value });
+                    if (errors.amount) setErrors((prev) => ({ ...prev, amount: '' }));
+                  }}
+                  placeholder="0"
+                  className={`bg-background border ${errors.amount ? 'border-red-500' : 'border-primary/20'}`}
+                />
+                {errors.amount && <p className="text-sm text-red-500">{errors.amount}</p>}
+              </div>
+              <div className="space-y-2 md:mb-auto">
+                <Label htmlFor="type">Type</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value: 'income' | 'expense') => setFormData({ ...formData, type: value })}
+                >
+                  <SelectTrigger className="bg-background border border-primary/20">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="income">Income</SelectItem>
+                    <SelectItem value="expense">Expense</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.transaction_date}
+                  onChange={(e) => {
+                    setFormData({ ...formData, transaction_date: e.target.value });
+                    if (errors.date) setErrors((prev) => ({ ...prev, date: '' }));
+                  }}
+                  className={`bg-background border ${errors.date ? 'border-red-500' : 'border-primary/20'}`}
+                />
+                {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={formData.category_id || 'uncategorized'}
+                  onValueChange={(value) => setFormData({ ...formData, category_id: value === 'uncategorized' ? '' : value })}
+                >
+                  <SelectTrigger className="bg-background border border-primary/20">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                    {categories
+                      .filter((category) => category.type === formData.type)
+                      .map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="receipt">Foto Bukti (Opsional)</Label>
+                <Input
+                  id="receipt"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setFormData({ ...formData, receipt: file });
+                    if (file) {
+                      const url = URL.createObjectURL(file);
+                      setPreviewUrl(url);
+                    } else {
+                      setPreviewUrl(null);
+                    }
+                  }}
+                />
+                {previewUrl && (
+                  <div className="mt-2">
+                    <div className="relative inline-block">
+                      <Image src={previewUrl} alt="Preview" className="max-h-40 rounded border" width={160} height={160} style={{ objectFit: 'contain', maxHeight: '10rem' }} />
+                      <Button
+                        type="button"
+                        className="absolute top-1 right-1 h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white border-2 border-white shadow-lg"
+                        onClick={handleDeletePhoto}
+                        title="Delete photo"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <div className="flex justify-end pt-4 pb-2 md:pb-0">
-            <Button 
-              type="submit" 
-              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full md:w-auto" 
+            <Button
+              type="submit"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full md:w-auto"
               disabled={loading}
               onClick={(e) => {
-                // Fallback click handler in case form submit doesn't work
                 e.preventDefault();
                 handleSubmit(e);
               }}

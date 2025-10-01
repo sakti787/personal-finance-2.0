@@ -60,19 +60,33 @@ export default function DashboardPage() {
         <PlexusBackground />
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4">
+          <div className="mb-6 md:mb-8">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">Dashboard</h1>
+            {/* Desktop button placement mirrors transactions page */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <button
-                  type="button"
-                  className="bg-primary text-white hover:bg-primary/90 px-4 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 font-semibold shadow hover:shadow-lg transition-all duration-300 text-sm md:text-base w-full sm:w-auto justify-center"
-                  onClick={() => setIsDialogOpen(true)}
-                >
-                  <span className="font-semibold">Add Transaction</span>
-                </button>
-              </DialogTrigger>
-              <DialogContent className="p-0 border-none bg-transparent shadow-none w-auto h-auto">
+              <div className="hidden sm:block mt-3">
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="mt-2 bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2 rounded font-semibold"
+                    onClick={() => setIsDialogOpen(true)}
+                  >
+                    Add Transaction
+                  </button>
+                </DialogTrigger>
+              </div>
+              <div className="sm:hidden mt-4 flex flex-col gap-2">
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded font-semibold"
+                    onClick={() => setIsDialogOpen(true)}
+                  >
+                    Add Transaction
+                  </button>
+                </DialogTrigger>
+              </div>
+              <DialogContent transparent className="p-0 w-auto h-auto animate-mobile-dialog-pop top-[30%] sm:top-[44%] md:top-[43%] lg:top-[42.5%]">
                 <DialogTitle className="sr-only">Add Transaction</DialogTitle>
                 <AddTransactionContainer onSuccess={() => { setIsDialogOpen(false); fetchTransactions(); }} />
               </DialogContent>

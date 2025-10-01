@@ -75,6 +75,27 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0.75rem;
   }
+  /* Mobile dialog pop animation */
+  @keyframes mobileDialogPop {
+    0% {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(-4px) scale(1.01);
+    }
+    80% {
+      transform: translateY(2px) scale(0.995);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .animate-mobile-dialog-pop {
+    animation: mobileDialogPop 340ms cubic-bezier(.22,.68,.43,1.02);
+  }
 }
 
 /* Mobile keyboard handling */

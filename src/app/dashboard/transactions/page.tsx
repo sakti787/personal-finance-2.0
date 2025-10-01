@@ -113,12 +113,13 @@ export default function TransactionsPage() {
         <PlexusBackground />
         <div className="mb-4 md:mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Transactions</h1>
-          {/* Tombol Add Transaction desktop langsung di bawah heading */}
-          <div className="hidden sm:block mt-3">
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) setEditTransaction(null);
-            }}>
+          {/* Unified Dialog for desktop & mobile */}
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) setEditTransaction(null);
+          }}>
+            {/* Desktop trigger */}
+            <div className="hidden sm:block mt-3">
               <DialogTrigger asChild>
                 <button
                   type="button"
@@ -131,19 +132,18 @@ export default function TransactionsPage() {
                   Add Transaction
                 </button>
               </DialogTrigger>
-              <DialogContent className="p-0 border-none bg-transparent shadow-none w-auto h-auto">
-                <DialogTitle className="sr-only">{editTransaction ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
-                <AddTransactionContainer
-                  onSuccess={() => {
-                    setIsDialogOpen(false);
-                    setEditTransaction(null);
-                  }}
-                  editData={editTransaction}
-                />
-              </DialogContent>
-            </Dialog>
-          </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-4 sm:mt-6">
+            </div>
+            <DialogContent transparent className="p-0 w-auto h-auto animate-mobile-dialog-pop sm:animate-none top-[36%] sm:top-[44%] md:top-[43%] lg:top-[42.5%]">
+              <DialogTitle className="sr-only">{editTransaction ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
+              <AddTransactionContainer
+                onSuccess={() => {
+                  setIsDialogOpen(false);
+                  setEditTransaction(null);
+                }}
+                editData={editTransaction}
+              />
+            </DialogContent>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-4 sm:mt-6">
             {/* Filter Dropdowns */}
             {/* Desktop: horizontal filter */}
             <div className="hidden sm:flex gap-2">
@@ -194,17 +194,18 @@ export default function TransactionsPage() {
             </div>
             {/* Mobile: vertical filter, urutan sesuai permintaan */}
             <div className="flex flex-col gap-2 sm:hidden w-full">
-              {/* Tombol Add Transaction di atas (mobile) */}
-              <button
-                type="button"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded font-semibold"
-                onClick={() => {
-                  setEditTransaction(null);
-                  setIsDialogOpen(true);
-                }}
-              >
-                Add Transaction
-              </button>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded font-semibold"
+                  onClick={() => {
+                    setEditTransaction(null);
+                    setIsDialogOpen(true);
+                  }}
+                >
+                  Add Transaction
+                </button>
+              </DialogTrigger>
               {/* Filter bulan dan tahun */}
               <div className="flex gap-2 w-full">
                 <Select
@@ -253,6 +254,7 @@ export default function TransactionsPage() {
               </Select>
             </div>
           </div>
+          </Dialog>
         </div>
         {loading ? (
           <div className="flex items-center justify-center h-64">
