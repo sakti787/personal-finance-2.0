@@ -17,7 +17,7 @@ export default function DashboardPage() {
   // State untuk preview bukti di recent transaction
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Removed unused 'loading' variable from final render; keep internal fetch logic simple
   const { 
     transactions, 
     fetchTransactions
@@ -45,12 +45,7 @@ export default function DashboardPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await fetchTransactions();
-      setLoading(false);
-    };
-    loadData();
+    fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

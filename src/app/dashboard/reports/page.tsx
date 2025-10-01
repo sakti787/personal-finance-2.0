@@ -10,7 +10,6 @@ import {
   BarChart, 
   Bar, 
   XAxis, 
-  YAxis, 
   CartesianGrid,
   PieChart,
   Pie,
@@ -269,7 +268,7 @@ export default function ReportsPage() {
         <div className="mb-6 flex flex-col sm:flex-row gap-4 sm:items-end">
           <div className="flex flex-col w-full sm:w-60">
             <label className="text-xs font-medium mb-1 text-muted-foreground">Month</label>
-            <Select value={selectedMonth} onValueChange={(val) => setSelectedMonth(val as any)}>
+            <Select value={selectedMonth} onValueChange={(val) => setSelectedMonth(val === 'all' ? 'all' : val)}>
               <SelectTrigger className="bg-background border border-primary/20">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
@@ -349,9 +348,15 @@ export default function ReportsPage() {
                           if (!isMobile) return;
                           setActiveSlice(prev => prev === index ? null : index);
                         }}
-                        activeShape={(props: any) => (
-                          <Sector {...props} outerRadius={(props.outerRadius || 0) + 6} />
-                        )}
+                        activeShape={(props: unknown) => {
+                          interface ActiveShapeData {
+                            outerRadius?: number;
+                            [key: string]: unknown;
+                          }
+                          const p = props as ActiveShapeData;
+                          const outer = (typeof p.outerRadius === 'number' ? p.outerRadius : 0) + 6;
+                          return <Sector {...(p as object)} outerRadius={outer} />;
+                        }}
                       >
                         {pieData.map((entry, index) => (
                           <Cell

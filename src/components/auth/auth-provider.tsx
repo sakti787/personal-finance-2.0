@@ -28,14 +28,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   useEffect(() => {
-    // Check session on initial load
-    const checkSession = async () => {
+    let isMounted = true;
+    const run = async () => {
       await authStore.checkSession();
-      setIsCheckingSession(false);
+      if (isMounted) setIsCheckingSession(false);
     };
-
-    checkSession();
-  }, []); // Remove authStore dependency to prevent infinite loop
+    run();
+    return () => { isMounted = false; };
+  }, [authStore]);
 
   // Redirect unauthenticated users away from protected routes
   useEffect(() => {
