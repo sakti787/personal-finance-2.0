@@ -13,7 +13,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className="antialiased font-sans">
+      {/* Added GPU compositing hacks (transform-gpu & will-change) to preserve animated background under mobile dropdown portals */}
+      <body className="antialiased font-sans aurora-background transform-gpu will-change-transform will-change-[opacity,transform] backface-hidden [perspective:1000px]">
         <main className="p-8">
           {children}
         </main>
