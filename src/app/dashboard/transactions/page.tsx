@@ -32,6 +32,8 @@ import { Button } from '@/components/ui/button';
 import PlexusBackground from '@/components/PlexusBackground';
 
 export default function TransactionsPage() {
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [sortDateAsc, setSortDateAsc] = useState(true);
   const {
     transactions,
     loading,
@@ -54,67 +56,65 @@ export default function TransactionsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Generate month options (1-12)
-  const months = Array.from({ length: 12 }, (_, i) => ({
-    value: i + 1,
-    label: new Date(0, i).toLocaleString('default', { month: 'long' })
-  }));
+  // Dynamic years & months based on existing transactions
+  const availableYearsSet = new Set<number>();
+  const yearToMonths: Record<number, Set<number>> = {};
+  transactions.forEach(t => {
+    const d = new Date(t.transaction_date);
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    availableYearsSet.add(y);
+    if (!yearToMonths[y]) yearToMonths[y] = new Set<number>();
+    yearToMonths[y].add(m);
+  });
+  const years = Array.from(availableYearsSet).sort((a,b)=>a-b);
+  const months = (yearToMonths[filterYear] ? Array.from(yearToMonths[filterYear]) : [])
+    .sort((a,b)=>a-b)
+    .map(m => ({ value: m, label: new Date(0, m-1).toLocaleString('default', { month: 'long' }) }));
 
-  // Generate year options (current year and a few before/after)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+  // Ensure current selected year/month remain valid
+  useEffect(() => {
+    if (years.length && !years.includes(filterYear)) {
+      setFilterYear(years[years.length - 1]); // pick latest year
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions]);
 
-  // Filter transactions by selected month and year
-  const filteredTransactions = transactions.filter((transaction) => {
+  useEffect(() => {
+    if (months.length && !months.find(m => m.value === filterMonth)) {
+      setFilterMonth(months[months.length - 1].value); // pick latest month existing in that year
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterYear, transactions]);
+
+  // Ambil semua kategori unik dari transaksi
+  const categories = Array.from(new Set(transactions.map(t => t.category?.name).filter(Boolean)));
+
+  // Filter transactions by selected month, year, and category
+  let filteredTransactions = transactions.filter((transaction) => {
     const transactionDate = new Date(transaction.transaction_date);
     const transactionMonth = transactionDate.getMonth() + 1;
     const transactionYear = transactionDate.getFullYear();
-    return transactionMonth === filterMonth && transactionYear === filterYear;
+    const matchMonthYear = transactionMonth === filterMonth && transactionYear === filterYear;
+    const matchCategory = filterCategory === 'all' || (transaction.category?.name === filterCategory);
+    return matchMonthYear && matchCategory;
+  });
+
+  // Sorting by date
+  filteredTransactions = filteredTransactions.sort((a, b) => {
+    const dateA = new Date(a.transaction_date).getTime();
+    const dateB = new Date(b.transaction_date).getTime();
+    return sortDateAsc ? dateA - dateB : dateB - dateA;
   });
 
   return (
     <PageTransition>
       <div className="min-h-screen aurora-background p-4 md:p-6">
         <PlexusBackground />
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
+        <div className="mb-4 md:mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Transactions</h1>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            {/* Filter Dropdowns */}
-            <div className="flex gap-2">
-              <Select 
-                value={filterMonth.toString()} 
-                onValueChange={(value) => setFilterMonth(parseInt(value))}
-              >
-                <SelectTrigger className="w-[120px] bg-card border border-primary/20">
-                  <SelectValue placeholder="Month" />
-                </SelectTrigger>
-                <SelectContent>
-                  {months.map((month) => (
-                    <SelectItem key={month.value} value={month.value.toString()}>
-                      {month.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select 
-                value={filterYear.toString()} 
-                onValueChange={(value) => setFilterYear(parseInt(value))}
-              >
-                <SelectTrigger className="w-[100px] bg-card border border-primary/20">
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Add Transaction Button */}
+          {/* Tombol Add Transaction desktop langsung di bawah heading */}
+          <div className="hidden sm:block mt-3">
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
               if (!open) setEditTransaction(null);
@@ -122,13 +122,13 @@ export default function TransactionsPage() {
               <DialogTrigger asChild>
                 <button
                   type="button"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded flex items-center gap-2"
+                  className="mt-2 bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2 rounded font-semibold"
                   onClick={() => {
                     setEditTransaction(null);
                     setIsDialogOpen(true);
                   }}
                 >
-                  <span className="font-semibold">Add Transaction</span>
+                  Add Transaction
                 </button>
               </DialogTrigger>
               <DialogContent className="p-0 border-none bg-transparent shadow-none w-auto h-auto">
@@ -143,19 +143,142 @@ export default function TransactionsPage() {
               </DialogContent>
             </Dialog>
           </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-4 sm:mt-6">
+            {/* Filter Dropdowns */}
+            {/* Desktop: horizontal filter */}
+            <div className="hidden sm:flex gap-2">
+              {/* Filter kategori */}
+              <Select
+                value={filterCategory}
+                onValueChange={setFilterCategory}
+              >
+                <SelectTrigger className="w-[140px] bg-card border border-primary/20">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((cat) => (
+                    cat ? <SelectItem key={cat} value={cat}>{cat}</SelectItem> : null
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* Filter bulan */}
+              <Select
+                value={filterMonth.toString()}
+                onValueChange={(value) => setFilterMonth(parseInt(value))}
+                disabled={!months.length}
+              >
+                <SelectTrigger className="w-[120px] bg-card border border-primary/20">
+                  <SelectValue placeholder={months.length ? 'Month' : 'No Month'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map(month => (
+                    <SelectItem key={month.value} value={month.value.toString()}>{month.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={filterYear.toString()}
+                onValueChange={(value) => setFilterYear(parseInt(value))}
+                disabled={!years.length}
+              >
+                <SelectTrigger className="w-[100px] bg-card border border-primary/20">
+                  <SelectValue placeholder={years.length ? 'Year' : 'No Year'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map(year => (
+                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Mobile: vertical filter, urutan sesuai permintaan */}
+            <div className="flex flex-col gap-2 sm:hidden w-full">
+              {/* Tombol Add Transaction di atas (mobile) */}
+              <button
+                type="button"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded font-semibold"
+                onClick={() => {
+                  setEditTransaction(null);
+                  setIsDialogOpen(true);
+                }}
+              >
+                Add Transaction
+              </button>
+              {/* Filter bulan dan tahun */}
+              <div className="flex gap-2 w-full">
+                <Select
+                  value={filterMonth.toString()}
+                  onValueChange={(value) => setFilterMonth(parseInt(value))}
+                  disabled={!months.length}
+                >
+                  <SelectTrigger className="w-[120px] bg-card border border-primary/20">
+                    <SelectValue placeholder={months.length ? 'Month' : 'No Month'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map(month => (
+                      <SelectItem key={month.value} value={month.value.toString()}>{month.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filterYear.toString()}
+                  onValueChange={(value) => setFilterYear(parseInt(value))}
+                  disabled={!years.length}
+                >
+                  <SelectTrigger className="w-[100px] bg-card border border-primary/20">
+                    <SelectValue placeholder={years.length ? 'Year' : 'No Year'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Filter kategori di bawahnya */}
+              <Select
+                value={filterCategory}
+                onValueChange={setFilterCategory}
+              >
+                <SelectTrigger className="w-full bg-card border border-primary/20">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((cat) => (
+                    cat ? <SelectItem key={cat} value={cat}>{cat}</SelectItem> : null
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : (
-          <AnimatedCard title="Transaction List" description="All your income and expense records">
-            <CardContent>
+          <AnimatedCard title="Transaction List" className="font-bold text-lg md:text-xl w-full min-h-[400px]">
+            <CardContent className="p-0">
+              {/* Baris judul dan tombol sort sejajar */}
+              <div className="flex items-center justify-between mb-2">
+                <div className="font-bold text-base md:text-lg">Your Records</div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  style={{ marginTop: '-4px' }}
+                  onClick={() => setSortDateAsc((prev) => !prev)}
+                >
+                  Sort Date {sortDateAsc ? '▲' : '▼'}
+                </Button>
+              </div>
               {filteredTransactions.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[700px] text-sm hidden md:table">
+                <div className="w-full">
+                  <table className="w-full text-sm hidden md:table">
                     <thead>
                       <tr className="border-b border-primary/20">
+                        <th className="text-left py-2 text-muted-foreground w-10">No</th>
                         <th className="text-left py-2 text-muted-foreground">Description</th>
                         <th className="text-left py-2 text-muted-foreground">Category</th>
                         <th className="text-left py-2 text-muted-foreground">Type</th>
@@ -166,9 +289,10 @@ export default function TransactionsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredTransactions.map((transaction) => (
+                      {filteredTransactions.map((transaction, idx) => (
                         <tr key={transaction.id} className="border-b border-primary/10 last:border-b-0">
-                          <td className="py-3">{transaction.description}</td>
+                          <td className="py-3 text-muted-foreground font-semibold text-center">{idx + 1}</td>
+                          <td className="py-3 pl-2">{transaction.description}</td>
                           <td className="py-3">{transaction.category?.name || 'Uncategorized'}</td>
                           <td className="py-3">{transaction.type}</td>
                           <td className="py-3">{new Date(transaction.transaction_date).toLocaleDateString()}</td>
@@ -219,11 +343,14 @@ export default function TransactionsPage() {
                     </tbody>
                   </table>
                   {/* Mobile Card List */}
-                  <div className="flex flex-col gap-3 md:hidden">
-                    {filteredTransactions.map((transaction) => (
-                      <div key={transaction.id} className="rounded-lg border bg-card p-4 shadow-sm">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="font-semibold">{transaction.description}</div>
+                  <div className="flex flex-col gap-4 md:hidden w-full">
+                    {filteredTransactions.map((transaction, idx) => (
+                      <div key={transaction.id} className="rounded-lg border bg-card shadow-sm w-full p-2">
+                        <div className="flex justify-between items-center mb-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground font-semibold text-center w-6">{idx + 1}</span>
+                            <span className="font-semibold pl-2">{transaction.description}</span>
+                          </div>
                           <div className={`text-xs px-2 py-1 rounded-full ${transaction.type === 'income' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>{transaction.type}</div>
                         </div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs mb-2">
