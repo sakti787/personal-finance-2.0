@@ -105,6 +105,9 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (formData.amount <= 0) newErrors.amount = 'Amount must be greater than 0';
     if (!formData.transaction_date) newErrors.date = 'Date is required';
+    // Category required (unless user explicitly wants uncategorized -> we force choose or keep blank?).
+    // Requirement: alert when user hasn't chosen a category. Treat blank category_id as error.
+    if (!formData.category_id) newErrors.category_id = 'Category is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -231,14 +234,16 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Select
-                  value={formData.category_id || 'uncategorized'}
-                  onValueChange={(value) => setFormData({ ...formData, category_id: value === 'uncategorized' ? '' : value })}
+                  value={formData.category_id || ''}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, category_id: value });
+                    if (errors.category_id) setErrors(prev => ({ ...prev, category_id: '' }));
+                  }}
                 >
-                  <SelectTrigger className="bg-background border border-primary/20">
+                  <SelectTrigger className={`bg-background border ${errors.category_id ? 'border-red-500' : 'border-primary/20'}`}>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="uncategorized">Uncategorized</SelectItem>
                     {categories
                       .filter((category) => category.type === formData.type)
                       .map((category) => (
@@ -248,6 +253,7 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
                       ))}
                   </SelectContent>
                 </Select>
+                {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="receipt">Foto Bukti (Opsional)</Label>
