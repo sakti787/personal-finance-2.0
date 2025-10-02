@@ -102,12 +102,10 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
+    // Description now optional
     if (formData.amount <= 0) newErrors.amount = 'Amount must be greater than 0';
     if (!formData.transaction_date) newErrors.date = 'Date is required';
-    // Category required (unless user explicitly wants uncategorized -> we force choose or keep blank?).
-    // Requirement: alert when user hasn't chosen a category. Treat blank category_id as error.
-    if (!formData.category_id) newErrors.category_id = 'Category is required';
+    if (!formData.category_id && formData.type === 'expense') newErrors.category_id = 'Category is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -172,20 +170,44 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
       </CardHeader>
       <CardContent className="pb-6 md:pb-4">
         <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
+          {/* Mobile-first category on top */}
+          <div className="md:hidden space-y-2">
+            <Label htmlFor="category-mobile">Category</Label>
+            <Select
+              value={formData.category_id || ''}
+              onValueChange={(value) => {
+                setFormData({ ...formData, category_id: value });
+                if (errors.category_id) setErrors(prev => ({ ...prev, category_id: '' }));
+              }}
+            >
+              <SelectTrigger id="category-mobile" className={`bg-background border ${errors.category_id ? 'border-red-500' : 'border-primary/20'}`}>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories
+                  .filter((category) => category.type === formData.type)
+                  .map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
+          </div>
           <div className="grid gap-6 md:gap-5 md:grid-cols-2">
             <div className="flex flex-col gap-4">
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Description (Optional)</Label>
                 <Input
                   id="description"
                   value={formData.description}
                   onChange={(e) => {
                     setFormData({ ...formData, description: e.target.value });
-                    if (errors.description) setErrors((prev) => ({ ...prev, description: '' }));
                   }}
-                  className={`bg-background border ${errors.description ? 'border-red-500' : 'border-primary/20'}`}
+                  className="bg-background border border-primary/20"
+                  placeholder="Optional description"
                 />
-                {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount</Label>
@@ -231,7 +253,7 @@ export default function AddTransactionContainer({ onSuccess, editData }: AddTran
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 hidden md:block">
                 <Label htmlFor="category">Category</Label>
                 <Select
                   value={formData.category_id || ''}

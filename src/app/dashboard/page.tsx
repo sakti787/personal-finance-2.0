@@ -126,8 +126,8 @@ export default function DashboardPage() {
                   <table className="w-full min-w-[600px] rounded-lg overflow-hidden">
                     <thead>
                       <tr className="border-b border-border bg-card/50 backdrop-blur-sm">
-                        <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Description</th>
                         <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Category</th>
+                        <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Description</th>
                         <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Date</th>
                         <th className="text-center py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Bukti</th>
                         <th className="text-right py-2 px-2 md:py-3 md:px-4 font-semibold text-muted-foreground text-xs md:text-sm">Amount</th>
@@ -136,6 +136,7 @@ export default function DashboardPage() {
                     <tbody>
                       {recentTransactions.map((transaction: import('@/lib/types').TransactionWithCategory) => (
                         <tr key={transaction.id} className="border-b border-border/50 hover:bg-card/30 transition-colors backdrop-blur-sm">
+                          <td className="py-2 px-2 md:py-3 md:px-4 align-middle text-xs md:text-sm">{transaction.category?.name || <span className="text-xs text-muted-foreground italic">-</span>}</td>
                           <td className="py-2 px-2 md:py-3 md:px-4 align-middle flex items-center gap-1 md:gap-2">
                             {transaction.type === 'income' ? (
                               <ArrowUpCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400 flex-shrink-0" />
@@ -144,7 +145,6 @@ export default function DashboardPage() {
                             )}
                             <span className="text-xs md:text-sm truncate max-w-[120px] md:max-w-none">{transaction.description}</span>
                           </td>
-                          <td className="py-2 px-2 md:py-3 md:px-4 align-middle text-xs md:text-sm">{transaction.category?.name || <span className="text-xs text-muted-foreground italic">-</span>}</td>
                           <td className="py-2 px-2 md:py-3 md:px-4 align-middle text-xs md:text-sm">{transaction.transaction_date ? new Date(transaction.transaction_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : <span className="text-xs text-muted-foreground italic">-</span>}</td>
                           <td className="py-2 px-2 md:py-3 md:px-4 align-middle text-center">
                             {transaction.proof_url ? (
