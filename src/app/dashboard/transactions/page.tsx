@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useDataStore } from '@/lib/store/data-store';
 import type { Transaction } from '@/lib/types';
@@ -33,7 +33,9 @@ import PlexusBackground from '@/components/PlexusBackground';
 
 export default function TransactionsPage() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [sortDateAsc, setSortDateAsc] = useState(true);
+  // Default: show newest (most recent date) first -> descending
+  const [sortDateAsc, setSortDateAsc] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const {
     transactions,
     loading,
@@ -93,22 +95,34 @@ export default function TransactionsPage() {
   // Ambil semua kategori unik dari transaksi
   const categories = Array.from(new Set(transactions.map(t => t.category?.name).filter(Boolean)));
 
-  // Filter transactions by selected month, year, and category
-  let filteredTransactions = transactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.transaction_date);
-    const transactionMonth = transactionDate.getMonth() + 1;
-    const transactionYear = transactionDate.getFullYear();
-    const matchMonthYear = transactionMonth === filterMonth && transactionYear === filterYear;
-    const matchCategory = filterCategory === 'all' || (transaction.category?.name === filterCategory);
-    return matchMonthYear && matchCategory;
-  });
+  // Filter + search + sort memoized
+  const filteredTransactions = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    const base = transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.transaction_date);
+      const transactionMonth = transactionDate.getMonth() + 1;
+      const transactionYear = transactionDate.getFullYear();
+      const matchMonthYear = transactionMonth === filterMonth && transactionYear === filterYear;
+      const matchCategory = filterCategory === 'all' || (transaction.category?.name === filterCategory);
+      const matchSearch = q === '' || (transaction.description || '').toLowerCase().includes(q);
+      return matchMonthYear && matchCategory && matchSearch;
+    });
+    return base.sort((a, b) => {
+      const dateA = new Date(a.transaction_date).getTime();
+      const dateB = new Date(b.transaction_date).getTime();
+      return sortDateAsc ? dateA - dateB : dateB - dateA;
+    });
+  }, [transactions, filterMonth, filterYear, filterCategory, searchQuery, sortDateAsc]);
 
-  // Sorting by date
-  filteredTransactions = filteredTransactions.sort((a, b) => {
-    const dateA = new Date(a.transaction_date).getTime();
-    const dateB = new Date(b.transaction_date).getTime();
-    return sortDateAsc ? dateA - dateB : dateB - dateA;
-  });
+  // Reset filters & search back to initial defaults (current month/year, all category, newest first)
+  const handleResetFilters = () => {
+    setFilterCategory('all');
+    setSearchQuery('');
+    setSortDateAsc(false); // newest first
+    const now = new Date();
+    setFilterMonth(now.getMonth() + 1);
+    setFilterYear(now.getFullYear());
+  };
 
   return (
     <PageTransition>
@@ -149,7 +163,8 @@ export default function TransactionsPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-4 sm:mt-6">
             {/* Filter Dropdowns */}
             {/* Desktop: horizontal filter */}
-            <div className="hidden sm:flex gap-2">
+            <div className="hidden sm:flex flex-col gap-2">
+              <div className="flex gap-2">
               {/* Filter kategori */}
               <Select
                 value={filterCategory}
@@ -194,6 +209,27 @@ export default function TransactionsPage() {
                   ))}
                 </SelectContent>
               </Select>
+              </div>
+              {/* Search box desktop */}
+              <div className="w-full flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search description..."
+                  className="flex-1 bg-card border border-primary/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-primary/60"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={handleResetFilters}
+                  title="Reset filters & search"
+                >
+                  Reset
+                </Button>
+              </div>
             </div>
             {/* Mobile: vertical filter, urutan sesuai permintaan */}
             <div className="flex flex-col gap-2 sm:hidden w-full">
@@ -255,6 +291,26 @@ export default function TransactionsPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {/* Search box + reset mobile */}
+              <div className="flex gap-2 w-full items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="   Search description..."
+                  className="flex-1 bg-card border border-primary/20 rounded px-0 py-2 text-sm focus:outline-none focus:border-primary/60"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={handleResetFilters}
+                  title="Reset filters & search"
+                >
+                  Reset
+                </Button>
+              </div>
             </div>
           </div>
           </Dialog>
@@ -273,9 +329,10 @@ export default function TransactionsPage() {
                   variant="outline"
                   size="sm"
                   style={{ marginTop: '-4px' }}
+                  title="Toggle date order"
                   onClick={() => setSortDateAsc((prev) => !prev)}
                 >
-                  Sort Date {sortDateAsc ? '▲' : '▼'}
+                  Date {sortDateAsc ? '▲' : '▼'}
                 </Button>
               </div>
               {filteredTransactions.length > 0 ? (

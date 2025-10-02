@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans overflow-x-hidden">
         {/* Background + any transforms moved off <body> so fixed portals (Dialog) aren't affected */}
         <div className="aurora-background transform-gpu will-change-transform will-change-[opacity,transform] backface-hidden [perspective:1000px] min-h-screen relative z-0">
           <main className="relative z-10 p-8">

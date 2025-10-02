@@ -30,6 +30,11 @@
   --radius: 0.625rem;
 }
 
+/* Prevent unwanted horizontal scroll on desktop */
+html, body {
+  overflow-x: hidden;
+}
+
 /* Force dark mode - Dark theme */
 .dark {
   --background: #0a0a0a;
