@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/lib/store/auth-store';
 import type { AuthState } from '@/lib/store/auth-store';
 import { usePathname, useRouter } from 'next/navigation';
@@ -26,15 +26,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const hasCheckedRef = useRef(false);
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    if (hasCheckedRef.current) {
+      setIsCheckingSession(false);
+      return;
+    }
+    hasCheckedRef.current = true;
+    let cancelled = false;
     const run = async () => {
-      await authStore.checkSession();
-      if (isMounted) setIsCheckingSession(false);
+      try {
+        await authStore.checkSession();
+      } finally {
+        if (!cancelled) setIsCheckingSession(false);
+      }
     };
+    timeoutRef.current = window.setTimeout(() => {
+      if (!cancelled) setIsCheckingSession(false);
+    }, 6000);
     run();
-    return () => { isMounted = false; };
+    return () => {
+      cancelled = true;
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    };
   }, [authStore]);
 
   // Redirect unauthenticated users away from protected routes
