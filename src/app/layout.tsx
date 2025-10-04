@@ -14,9 +14,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className="antialiased font-sans overflow-x-hidden">
-        {/* Background + any transforms moved off <body> so fixed portals (Dialog) aren't affected */}
-        <div className="aurora-background transform-gpu will-change-transform will-change-[opacity,transform] backface-hidden [perspective:1000px] min-h-screen relative z-0">
-          <main className="relative z-10 p-8">
+        {/* NOTE: Removed transform/perspective classes so the fixed PlexusBackground canvas spans full scroll height */}
+        <div className="aurora-background min-h-screen relative z-0">
+          <main className="relative z-10 p-8 min-h-screen">
             {children}
           </main>
         </div>

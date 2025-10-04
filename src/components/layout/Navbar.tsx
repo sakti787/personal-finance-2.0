@@ -31,16 +31,16 @@ export function Navbar() {
   }, [menuOpen]);
 
   return (
-    <header className="w-full card-glass px-2 sm:px-4 py-2 z-50">
-      <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-4">
+    <header className="w-full card-glass px-2 xl:px-4 py-2 z-50">
+      <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 xl:gap-4">
+        <div className="flex items-center gap-2 xl:gap-4">
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-primary leading-tight">UangSakti</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Financial Tracker</p>
+            <h1 className="text-lg xl:text-xl font-bold text-primary leading-tight">UangSakti</h1>
+            <p className="text-[10px] xl:text-xs text-muted-foreground leading-tight">Financial Tracker</p>
           </div>
           {/* Hamburger button for mobile */}
           <button
-            className="sm:hidden ml-2 p-2 rounded hover:bg-primary/10 focus:outline-none"
+            className="xl:hidden ml-2 p-2 rounded hover:bg-primary/10 focus:outline-none"
             aria-label="Toggle menu"
             onClick={() => setMenuOpen((v) => !v)}
           >
@@ -50,13 +50,14 @@ export function Navbar() {
           </button>
           {/* Menu navigasi */}
           <nav ref={navRef} className={cn(
-            "ml-0 sm:ml-6",
+            // Full menu only shown on extra large screens to avoid truncation on half-desktop widths
+            "ml-0 xl:ml-6",
             menuOpen ? "absolute left-0 top-14 w-full bg-black/70 backdrop-blur-lg z-[100] border border-white/10 shadow-xl rounded-lg mt-2" : "hidden",
-            "sm:static sm:block"
+            "xl:static xl:block"
           )}>
             <ul className={cn(
-              "flex-col gap-1 p-2 sm:p-0 sm:flex-row sm:gap-2 flex",
-              menuOpen ? "flex" : "hidden sm:flex"
+              "flex-col gap-1 p-2 xl:p-0 xl:flex-row xl:gap-2 flex",
+              menuOpen ? "flex" : "hidden xl:flex"
             )}>
               {/* Define nav items for easier mapping */}
               {[
@@ -90,10 +91,10 @@ export function Navbar() {
             </ul>
           </nav>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="text-xs sm:text-sm text-right truncate">
-            <p className="font-medium truncate max-w-[90px] sm:max-w-[160px]">{user?.user_metadata?.username || user?.email}</p>
-            <p className="text-muted-foreground text-[10px] sm:text-xs">Logged in</p>
+        <div className="flex items-center gap-2 xl:gap-3 min-w-0">
+          <div className="text-xs xl:text-sm text-right truncate">
+            <p className="font-medium truncate max-w-[90px] xl:max-w-[160px]">{user?.user_metadata?.username || user?.email}</p>
+            <p className="text-muted-foreground text-[10px] xl:text-xs">Logged in</p>
           </div>
           <LogoutButton />
         </div>
