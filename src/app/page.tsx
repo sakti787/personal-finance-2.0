@@ -77,13 +77,31 @@ export default function LandingPage() {
           animate={{ y: [0, -12, 0] }} // Floating effect
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
+          {/* NOTE: Place your image file at /public/dashboard-mockup.png (e.g. personal-finance-2.0/public/dashboard-mockup.png)
+              The previous path used /src/app/ which is incorrect for Next.js static assets.
+              If you prefer another name, update the src accordingly (must start with /). */}
           <Image
-            src="/path-to-your-dashboard-mockup.png"
+            src="/dashboard-mockup.png"
             alt="UangSakti Dashboard Mockup"
             width={1200}
             height={780}
+            priority
             className="rounded-lg shadow-2xl"
+            onError={(e) => {
+              // Provide a lightweight fallback if the image is missing
+              const target = e.currentTarget as HTMLImageElement;
+              target.style.display = 'none';
+              const fallback = document.getElementById('hero-image-fallback');
+              if (fallback) fallback.style.display = 'flex';
+            }}
           />
+          <div
+            id="hero-image-fallback"
+            style={{ display: 'none' }}
+            className="w-full h-[300px] md:h-[420px] rounded-lg shadow-2xl border border-dashed border-border flex items-center justify-center text-sm text-muted-foreground"
+          >
+            Tambahkan file dashboard-mockup.png ke folder public untuk menampilkan gambar.
+          </div>
         </motion.div>
       </section>
 
