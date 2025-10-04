@@ -1,7 +1,7 @@
 'use client';
 
 import { useDataStore } from '@/lib/store/data-store';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -13,6 +13,52 @@ import AddTransactionContainer from '@/components/auth/add-transaction-container
 
 
 export default function DashboardPage() {
+  // Animated number hook/component local definition for concise usage
+  const AnimatedNumber = ({ value, prefix = '', duration = 1200 }: { value: number; prefix?: string; duration?: number }) => {
+    const prev = useRef<number>(value);
+    const first = useRef<boolean>(true);
+    const [display, setDisplay] = useState<number>(0); // start from 0 but render immediately (no blank)
+    const [pulseKey, setPulseKey] = useState<number>(0); // force restart animation
+
+    useEffect(() => {
+      const from = first.current ? 0 : prev.current;
+      const to = value;
+      if (from === to) {
+        // Still trigger a subtle pulse if first mount
+        if (first.current) setPulseKey(k => k + 1);
+        first.current = false;
+        setDisplay(to);
+        return;
+      }
+      prev.current = value;
+      first.current = false;
+      let start: number | null = null;
+      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+      const step = (ts: number) => {
+        if (start === null) start = ts;
+        const progress = Math.min(1, (ts - start) / duration);
+        const eased = easeOutCubic(progress);
+        setDisplay(Math.round(from + (to - from) * eased));
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          // After finishing bump pulse key to retrigger CSS animation
+            setPulseKey(k => k + 1);
+        }
+      };
+      requestAnimationFrame(step);
+    }, [value, duration]);
+
+    // Use unique key in className string to ensure animation restart
+    return (
+      <span
+        className={`inline-block animate-pop-once key-${pulseKey}`}
+        style={{ animationName: 'popPulse' }}
+      >
+        {prefix}{formatCurrency(display)}
+      </span>
+    );
+  };
   // State untuk preview bukti di recent transaction
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
@@ -94,7 +140,9 @@ export default function DashboardPage() {
                   <svg className="w-4 h-4 md:w-5 md:h-5 text-success" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v8m0 0l-3-3m3 3l3-3" /></svg>
                   <CardTitle className="text-sm md:text-base font-semibold text-muted-foreground">Total Income</CardTitle>
                 </div>
-                <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-success text-center">{formatCurrency(totalIncome)}</div>
+                <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-center bg-gradient-to-r from-emerald-300 via-green-400 to-emerald-500 bg-clip-text text-transparent drop-shadow-[0_0_6px_rgba(16,185,129,0.35)]">
+                  <AnimatedNumber value={totalIncome} />
+                </div>
               </CardHeader>
             </AnimatedCard>
             <AnimatedCard delay={0.2} className="card-glass">
@@ -103,7 +151,9 @@ export default function DashboardPage() {
                   <svg className="w-4 h-4 md:w-5 md:h-5 text-danger" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16V8m0 0l-3 3m3-3l3 3" /></svg>
                   <CardTitle className="text-sm md:text-base font-semibold text-muted-foreground">Total Expenses</CardTitle>
                 </div>
-                <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-danger text-center">{formatCurrency(totalExpenses)}</div>
+                <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-center bg-gradient-to-r from-rose-300 via-red-400 to-rose-500 bg-clip-text text-transparent drop-shadow-[0_0_6px_rgba(239,68,68,0.35)]">
+                  <AnimatedNumber value={totalExpenses} />
+                </div>
               </CardHeader>
             </AnimatedCard>
             <AnimatedCard delay={0.3} className="card-glass">
@@ -112,7 +162,12 @@ export default function DashboardPage() {
                   <svg className="w-4 h-4 md:w-5 md:h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#3B82F6" strokeWidth="2" fill="none" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" /></svg>
                   <CardTitle className="text-sm md:text-base font-semibold text-muted-foreground">Balance</CardTitle>
                 </div>
-                <div className={`text-2xl md:text-3xl lg:text-4xl font-extrabold text-center ${balance >= 0 ? 'text-success' : 'text-danger'}`}>{formatCurrency(balance)}</div>
+                <div className={`text-2xl md:text-3xl lg:text-4xl font-extrabold text-center bg-clip-text text-transparent drop-shadow-[0_0_6px_rgba(147,51,234,0.35)] ${balance >= 0
+                  ? 'bg-gradient-to-r from-emerald-300 via-green-400 to-emerald-500'
+                  : 'bg-gradient-to-r from-rose-300 via-red-400 to-rose-500'
+                }`}>
+                  <AnimatedNumber value={balance} />
+                </div>
               </CardHeader>
             </AnimatedCard>
           </div>

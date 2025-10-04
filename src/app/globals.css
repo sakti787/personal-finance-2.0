@@ -101,6 +101,16 @@ html, body {
   .animate-mobile-dialog-pop {
     animation: mobileDialogPop 340ms cubic-bezier(.22,.68,.43,1.02);
   }
+  /* One-time pop pulse for metric numbers */
+  @keyframes popPulse {
+    0% { transform: scale(1); filter: brightness(1); }
+    35% { transform: scale(1.08); filter: brightness(1.15); }
+    60% { transform: scale(0.97); filter: brightness(1.05); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+  .animate-pop-once {
+    animation: popPulse 600ms cubic-bezier(.25,.8,.3,1) 50ms 1;
+  }
 }
 
 /* Mobile keyboard handling */
