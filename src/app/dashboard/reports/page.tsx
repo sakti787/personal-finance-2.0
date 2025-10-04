@@ -23,7 +23,6 @@ import {
   ChartTooltip,
 } from "@/components/ui/chart";
 import { TrendingUp } from 'lucide-react';
-import PlexusBackground from '@/components/PlexusBackground';
 
 export default function ReportsPage() {
   const { 
@@ -216,7 +215,6 @@ export default function ReportsPage() {
   return (
     <PageTransition>
       <div className="min-h-screen aurora-background p-4 md:p-6">
-        <PlexusBackground />
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-6">Financial Reports</h1>
         
         {/* Summary Cards */}

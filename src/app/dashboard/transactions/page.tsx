@@ -29,7 +29,6 @@ import { useDataStore } from '@/lib/store/data-store';
 import type { Transaction } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import PlexusBackground from '@/components/PlexusBackground';
 
 export default function TransactionsPage() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -127,7 +126,6 @@ export default function TransactionsPage() {
   return (
     <PageTransition>
       <div className="min-h-screen aurora-background p-4 md:p-6">
-        <PlexusBackground />
         <div className="mb-4 md:mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Transactions</h1>
           {/* Unified Dialog for desktop & mobile */}

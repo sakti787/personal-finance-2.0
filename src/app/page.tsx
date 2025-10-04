@@ -3,13 +3,11 @@
 import { ClipboardList, GanttChartSquare, Target } from 'lucide-react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import PlexusBackground from '@/components/PlexusBackground';
 import Link from 'next/link';
 
 export default function LandingPage() {
   return (
     <div className="w-full min-h-screen aurora-background text-foreground">
-      <PlexusBackground />
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8 py-24">
         {/* Text Content */}

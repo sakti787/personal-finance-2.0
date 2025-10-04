@@ -39,7 +39,6 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { PageTransition } from '@/components/ui/page-transition';
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { Trash2, Plus } from 'lucide-react';
-import PlexusBackground from '@/components/PlexusBackground';
 import { cn } from '@/lib/utils';
 
 export default function BudgetsPage() {
@@ -160,7 +159,6 @@ export default function BudgetsPage() {
   return (
     <PageTransition>
       <div className="min-h-screen aurora-background px-0 py-4 md:px-6 md:py-6">
-        <PlexusBackground />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Budgets</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

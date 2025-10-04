@@ -10,8 +10,9 @@ export function LogoutButton() {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
-      router.push('/auth/login');
+  await signOut();
+  // Redirect to landing page instead of login
+  router.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }
